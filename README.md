@@ -18,14 +18,15 @@ Leiningen Clojars dependency:
 ## Example usages
 
 ```clojure
-(defentity BasicEntity [content saved-time])
+(defentity BasicEntity [content saved-time repeated-value])
 
 (defentity AnotherEntity [content saved-time int-value])
 
 (let [entity (save! (create-AnotherEntity "Some content woo" (t/date-time 1980 3 5) 6))
       entity2 (save! (create-AnotherEntity "Other content" (t/date-time 1984 10 12) 91))
       entity3 (save! (create-AnotherEntity "More interesting content" (t/date-time 1984 10 12) 17))
-      root-entity (save! (create-BasicEntity "basic entity content" (t/date-time 2015 6 8)))
+                                        ; repeated properties
+      root-entity (save! (create-BasicEntity "basic entity content" (t/date-time 2015 6 8) [1 2 3])) 
       child-entity1 (save! (create-AnotherEntity "child one content" (t/date-time 2016 12 10) 33) (gae-key root-entity))
       child-entity2 (save! (create-AnotherEntity "child two content" (t/date-time 2016 12 10) 44) (gae-key root-entity))]   
                                         ; query all
@@ -75,6 +76,13 @@ Leiningen Clojars dependency:
   (with-xg-transaction
      (save! (create-AnotherEntity "Content information" (t/date-time 1984 10 12) 6001))
      (save! (create-AnotherEntity "More content information" (t/date-time 1984 10 12) 6002))))
+                                        ; Deleting
+  (delete! entity) ; or (delete! {:key (:key entity)})
+   (delete! entity2)
+   (delete! entity3)
+   (delete! child-entity1)
+   (delete! child-entity2)
+   (delete! root-entity)
 ```
 
 ## Runing the automated tests

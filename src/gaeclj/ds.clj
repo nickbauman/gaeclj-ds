@@ -45,7 +45,11 @@
   (->prop [d] d)
 
   org.joda.time.DateTime
-  (->prop [d] (c/to-date d)))
+  (->prop [d] (c/to-date d))
+
+  ; support for repeated properties
+  java.util.List
+  (->prop [d] d))
 
 (extend-protocol FromNdbValue
   Key
@@ -53,12 +57,16 @@
 
   String
   (<-prop [s] s)
-  
+
   Number
   (<-prop [n] n)
 
   java.util.Date
-  (<-prop [d] (c/from-date d)))
+  (<-prop [d] (c/from-date d))
+
+  ; support for repeated properties
+  java.util.List
+  (<-prop [d] d))
 
 (defn make-key 
   ([kind value]
