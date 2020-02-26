@@ -93,6 +93,6 @@ Through leiningen
 
 ## License
 
-Copyright Peter Schwarz and Nick Bauman © 2016, 2017
+Copyright Peter Schwarz and Nick Bauman © 2016-2020
 
 Employing the Eclipse Public License (expressed in LICENSE file)
