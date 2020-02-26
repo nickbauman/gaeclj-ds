@@ -2,6 +2,8 @@
 
 A Clojure query DSL for Google App Engine. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
 
+[![Clojars Project](https://img.shields.io/clojars/v/gaeclj-ds.svg)](https://clojars.org/gaeclj-ds)
+
 ## Prerequisites
 
 You will need the [Java SDK for AppEngine and its dependencies](https://cloud.google.com/appengine/docs/standard/java/download). 
