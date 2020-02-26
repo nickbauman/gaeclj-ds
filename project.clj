@@ -1,6 +1,6 @@
 (def appengine-version "1.9.48")
 
-(defproject gaeclj-ds "0.1.0"
+(defproject gaeclj-ds "0.1.1"
   :description "A DSL to support querying Google App Engine's Datastore"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
@@ -8,21 +8,22 @@
             :comments "same as Clojure"}
   :min-lein-version "2.6.0"
   :url "https://github.com/nickbauman/gaeclj-ds"
-  :javac-options ["-target" "1.7" "-source" "1.7" "-Xlint:-options"]
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/tools.logging "0.3.1"]
-                 [org.clojure/data.json "0.2.6"]
-                 [clj-time "0.13.0"]
-                 [ch.qos.logback/logback-classic "1.1.8"]
-                 [com.google.guava/guava "20.0"]
+  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/tools.logging "0.6.0"]
+                 [org.clojure/data.json "1.0.0"]
+                 [clj-time "0.15.2"]
+                 [ch.qos.logback/logback-classic "1.2.3"]
+                 [com.google.guava/guava "23.0"]
                  [com.google.appengine/appengine-api-1.0-sdk ~appengine-version]
-                 [org.apache.httpcomponents/httpclient "4.5.2"]       
-                 [com.google.api-client/google-api-client-appengine "1.22.0"
+                 [org.apache.httpcomponents/httpclient "4.5.11"]
+                 [com.google.api-client/google-api-client-appengine "1.30.8"
                   :exclusions [com.google.guava/guava-jdk5]]
-                 [com.google.oauth-client/google-oauth-client-appengine "1.22.0"
+                 [com.google.oauth-client/google-oauth-client-appengine "1.30.5"
                   :exclusions [com.google.guava/guava-jdk5]]       
-                 [com.google.http-client/google-http-client-appengine "1.22.0"
-                  :exclusions [com.google.guava/guava-jdk5]]]
+                 [com.google.http-client/google-http-client-appengine "1.34.2"
+                  :exclusions [com.google.guava/guava-jdk5]]
+                 [danlentz/clj-uuid "0.1.9"]]
   :java-source-paths ["src-java"]
   :aot :all
   :profiles

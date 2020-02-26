@@ -1,8 +1,9 @@
 (ns gaeclj.test.ds
-    (:require [clojure.test :refer :all]
-              [gaeclj.test.fixtures :as fixtures]
-              [gaeclj.ds :as db :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
-              [clj-time.core :as t]))
+  (:require [clojure.test :refer :all]
+            [gaeclj.test.fixtures :as fixtures]
+            [clj-uuid :as uuid]
+            [gaeclj.ds :as db :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
+            [clj-time.core :as t]))
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
@@ -11,6 +12,8 @@
 (defentity AnotherEntity [content saved-time int-value])
 
 (defentity CustomKeyEntity [key content saved-time])
+
+(defentity MyEntityWithRepeatedProp [repeated-uuid-array saved-time])
 
 (deftest test-basic-entities
 
@@ -45,7 +48,7 @@
       (delete! ent)
       (is (nil? (get-CustomKeyEntity "my-key"))))))
 
-(deftest test-basic-gae-functions 
+(deftest test-basic-gae-functions
   (testing "save-entity and get-entity"
     (let [saved-time (t/now)
           saved-ent (db/save-entity 'BasicEntity {:content "Something Saved" :saved-time saved-time})
@@ -53,86 +56,96 @@
       (is (:key saved-ent))
 
       (are [x y] (= x y)
-        "Something Saved" (:content fetched-ent)
-        saved-time (:saved-time fetched-ent)))))
+                 "Something Saved" (:content fetched-ent)
+                 saved-time (:saved-time fetched-ent)))))
+
+(deftest test-repeated-properties
+  (testing "Save entity that has a repeated property"
+    (let [ent (save! (create-MyEntityWithRepeatedProp [(str (uuid/v1)) (str (uuid/v1))] (t/date-time 1980 3 5)))
+          q-all (query-MyEntityWithRepeatedProp [])]
+      (is (not (nil? ent)))
+      (is (= 1 (.size q-all)))
+      (is (= 2 (.size (:repeated-uuid-array (first q-all)))))
+      (is (not (nil? (re-matches #"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}"
+                                 (first (:repeated-uuid-array (first q-all))))))))))
 
 (deftest test-query-language
   (let [entity (save! (create-AnotherEntity "Some content woo" (t/date-time 1980 3 5) 6))
         entity2 (save! (create-AnotherEntity "Other content" (t/date-time 1984 10 12) 91))
         entity3 (save! (create-AnotherEntity "More interesting content" (t/date-time 1984 10 12) 17))]
-    
+
     (testing "queries with predicates"
-                                        ; query all
+      ; query all
       (is (= (list entity entity2 entity3) (query-AnotherEntity [])))
-                                        ; equality
-            (is (= (list entity) (query-AnotherEntity [:content = "Some content woo"])))
+      ; equality
+      (is (= (list entity) (query-AnotherEntity [:content = "Some content woo"])))
       (is (nil? (query-AnotherEntity [:content = "Blearg not found"])))
-                                        ; not equal
+      ; not equal
       (is (= (list entity3 entity2 entity) (query-AnotherEntity [:content != "Not found"])))
       (is (= (list entity3 entity) (query-AnotherEntity [:content != "Other content"])))
-                                        ; greater-than and less-than
+      ; greater-than and less-than
       (is (= (list entity) (query-AnotherEntity [:int-value < 7])))
       (is (nil? (query-AnotherEntity [:int-value < 5])))
-                                        ; time: before and after
+      ; time: before and after
       (is (= (list entity entity2 entity3) (query-AnotherEntity [:saved-time > (.toDate (t/date-time 1979 3 5))])))
       (is (nil? (query-AnotherEntity [:saved-time < (.toDate (t/date-time 1979 3 5))])))
-                                        ; "and" compound queries
+      ; "and" compound queries
       (is (= (list entity) (query-AnotherEntity [:and [:content = "Some content woo"] [:int-value > 5]])))
       (is (= (list entity entity3) (query-AnotherEntity [:and [:int-value > 5] [:int-value <= 17]])))
-                                        ; "or" compound queries
+      ; "or" compound queries
       (is (= (list entity) (query-AnotherEntity [:or [:content = "Some content woo"] [:int-value < 5]])))
       (is (= (list entity entity3 entity2) (query-AnotherEntity [:or [:content = "Some content woo"] [:int-value > 5]])))
-                                        ; compound queries with nested compound predicates
-      (is (= (list entity entity2) (query-AnotherEntity 
-                                    [:or [:content = "Other content"] 
-                                     [:and [:saved-time < (.toDate (t/date-time 1983 3 5))] [:int-value = 6]]]))))
-    
+      ; compound queries with nested compound predicates
+      (is (= (list entity entity2) (query-AnotherEntity
+                                     [:or [:content = "Other content"]
+                                      [:and [:saved-time < (.toDate (t/date-time 1983 3 5))] [:int-value = 6]]]))))
+
     (testing "query keys-only and order-by support"
-                                        ; keys-only support
+      ; keys-only support
       (is (= (list (:key entity)) (query-AnotherEntity [:int-value < 7] [:keys-only true])))
-                                        ; order-by support
+      ; order-by support
       (is (= (list entity2 entity3 entity) (query-AnotherEntity [:int-value > 0] [:order-by :int-value :desc])))
-                                        ; keys only and order-by support together
-      (is (= (list (:key entity2) (:key entity3) (:key entity)) 
+      ; keys only and order-by support together
+      (is (= (list (:key entity2) (:key entity3) (:key entity))
              (query-AnotherEntity [:int-value > 0] [:keys-only true :order-by :int-value :desc])))
-                                        ; support multiple sort orders (with keys-only, too)
-      (is (= (list (:key entity3) (:key entity2) (:key entity)) 
+      ; support multiple sort orders (with keys-only, too)
+      (is (= (list (:key entity3) (:key entity2) (:key entity))
              (query-AnotherEntity [:saved-time > 0] [:order-by :saved-time :desc :int-value :asc :keys-only true]))))
-    
+
     (testing "querys with ancestors"
       (let [root-entity (save! (create-BasicEntity "basic entity content" (t/date-time 2015 6 8)))
             child-entity1 (save! (create-AnotherEntity "child one content" (t/date-time 2016 12 10) 33) (gae-key root-entity))
             child-entity2 (save! (create-AnotherEntity "child two content" (t/date-time 2016 12 10) 44) (gae-key root-entity))]
-                                        ; parents can find their children
-        (is (= (list child-entity1 child-entity2) (query-AnotherEntity [] [:ancestor-key (gae-key root-entity)]))) 
-                                        ; works with predicates
+        ; parents can find their children
+        (is (= (list child-entity1 child-entity2) (query-AnotherEntity [] [:ancestor-key (gae-key root-entity)])))
+        ; works with predicates
         (is (= (list child-entity2) (query-AnotherEntity [:int-value > 33] [:ancestor-key (gae-key root-entity)])))
-                                        ; works with keys-only support
+        ; works with keys-only support
         (is (= (list (:key child-entity1) (:key child-entity2)) (query-AnotherEntity [] [:keys-only true :ancestor-key (gae-key root-entity)])))
         (is (= (list (:key child-entity1) (:key child-entity2)) (query-AnotherEntity [] [:ancestor-key (gae-key root-entity) :keys-only true])))
-                                        ; works with order-by
+        ; works with order-by
         (is (= (list child-entity2 child-entity1) (query-AnotherEntity [] [:ancestor-key (gae-key root-entity) :order-by :int-value :desc]))))))
 
   (testing "save with transactions"
     (is (= 0 (count (query-AnotherEntity [:int-value = 50]))))
     (with-transaction
-      (save! (create-AnotherEntity "single entity content"  (t/date-time 2016 12 10) 50)))
-    (is (= 1 (count (query-AnotherEntity [:int-value = 50])))) 
-    
+      (save! (create-AnotherEntity "single entity content" (t/date-time 2016 12 10) 50)))
+    (is (= 1 (count (query-AnotherEntity [:int-value = 50]))))
+
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
-                                        ; fails because this is an XG transaction: all entities are their own roots
-    (is (thrown-with-msg? 
-         IllegalArgumentException #"cross-group transaction need to be explicitly specified, see TransactionOptions.Builder.withXG"
-         (with-transaction
-           (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
-           (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
-           (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
+    ; fails because this is an XG transaction: all entities are their own roots
+    (is (thrown-with-msg?
+          IllegalArgumentException #"cross-group transaction need to be explicitly specified, see TransactionOptions.Builder.withXG"
+          (with-transaction
+            (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
+            (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
+            (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
-    
+
     (is (= 0 (count (query-AnotherEntity [:int-value > 51000]))))
     (with-xg-transaction
       (save! (create-AnotherEntity "Some New Content" (t/date-time 2016 12 10) 51001))
       (save! (create-AnotherEntity "More New Content" (t/date-time 2016 12 10) 51002))
-      (save! (create-AnotherEntity "Even More New Content" (t/date-time 2016 12 10) 51003)))   
+      (save! (create-AnotherEntity "Even More New Content" (t/date-time 2016 12 10) 51003)))
     (is (= 3 (count (query-AnotherEntity [:int-value > 51000]))))))
 

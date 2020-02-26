@@ -11,4 +11,5 @@ pom.xml.asc
 .hg/
 foobarbaz
 *.DS_Store
-*.iml
+gaeclj-ds.iml
+.idea/
