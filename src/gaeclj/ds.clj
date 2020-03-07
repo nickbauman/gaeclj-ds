@@ -1,24 +1,24 @@
 (ns gaeclj.ds
-    (:require [clj-time.core :as t]
-              [clj-time.coerce :as c]
-              [clojure.reflect :as r]
-              [clojure.tools.logging :as log]
-              [gaeclj.util :as u])
-    (:import [com.google.appengine.api.datastore 
-              DatastoreServiceFactory
-              DatastoreService
-              Entity
-              EntityNotFoundException
-              FetchOptions$Builder
-              KeyFactory
-              Key
-              Query
-              Query$SortDirection
-              Query$CompositeFilter
-              Query$CompositeFilterOperator
-              Query$FilterPredicate
-              Query$FilterOperator
-              TransactionOptions$Builder]))
+  (:require [clj-time.core :as t]
+            [clj-time.coerce :as c]
+            [clojure.reflect :as r]
+            [clojure.tools.logging :as log]
+            [gaeclj.util :as u])
+  (:import [com.google.appengine.api.datastore
+            DatastoreServiceFactory
+            DatastoreService
+            Entity
+            EntityNotFoundException
+            FetchOptions$Builder
+            KeyFactory
+            Key
+            Query
+            Query$SortDirection
+            Query$CompositeFilter
+            Query$CompositeFilterOperator
+            Query$FilterPredicate
+            Query$FilterOperator
+            TransactionOptions$Builder]))
 
 (defprotocol NdbEntity
   (save! [this] [this parent-key] "Saves the entity. Saves the entity with its parent key.")
@@ -68,7 +68,7 @@
   java.util.List
   (<-prop [d] d))
 
-(defn make-key 
+(defn make-key
   ([kind value]
    (KeyFactory/createKey (name kind) value))
   ([kind parent value]
@@ -85,26 +85,26 @@
   ([entity-type entity]
    (save-entity entity-type entity nil))
   ([entity-type entity parent-key]
-    (log/debugf "Saving %s: %s" entity-type (pr-str entity))
-    (let [datastore (DatastoreServiceFactory/getDatastoreService)
-          gae-parent-key (check-key parent-key entity-type)
-          gae-ent (if (:key entity)
-                    (if gae-parent-key
-                      (Entity. (name entity-type) (:key entity) gae-parent-key)
-                      (Entity. (name entity-type) (:key entity)))
-                    (if gae-parent-key
-                      (Entity. (name entity-type) gae-parent-key)
-                      (Entity. (name entity-type))))]
-      (doseq [field (keys entity)]
-        (.setProperty gae-ent (name field) (->prop (field entity))))
-      (try 
-        (.put datastore gae-ent)
-        (catch Exception e
-          (log/error e (str "Unable to save " (pr-str entity)))
-          (throw e)))
-      (if (:key entity)
-        entity
-        (assoc entity :key (.. gae-ent getKey getId))))))
+   (log/debugf "Saving %s: %s" entity-type (pr-str entity))
+   (let [datastore (DatastoreServiceFactory/getDatastoreService)
+         gae-parent-key (check-key parent-key entity-type)
+         gae-ent (if (:key entity)
+                   (if gae-parent-key
+                     (Entity. (name entity-type) (:key entity) gae-parent-key)
+                     (Entity. (name entity-type) (:key entity)))
+                   (if gae-parent-key
+                     (Entity. (name entity-type) gae-parent-key)
+                     (Entity. (name entity-type))))]
+     (doseq [field (keys entity)]
+       (.setProperty gae-ent (name field) (->prop (field entity))))
+     (try
+       (.put datastore gae-ent)
+       (catch Exception e
+         (log/error e (str "Unable to save " (pr-str entity)))
+         (throw e)))
+     (if (:key entity)
+       entity
+       (assoc entity :key (.. gae-ent getKey getId))))))
 
 (defn- gae-entity->map [gae-entity]
   (let [gae-key (.getKey gae-entity)
@@ -131,7 +131,7 @@
   (let [datastore (DatastoreServiceFactory/getDatastoreService)]
     (.delete datastore (map #(make-key entity-kind %) (conj more-keys entity-key)))))
 
-                                        ; Start DS Query support ;;;
+; Start DS Query support ;;;
 
 (defn !=
   "Available to complete the operator-map logic. Reverse logic of the = function"
@@ -140,16 +140,16 @@
   ([x y & more]
    (not (apply = x y more))))
 
-(def operator-map {< Query$FilterOperator/LESS_THAN
-                   > Query$FilterOperator/GREATER_THAN
-                   = Query$FilterOperator/EQUAL
+(def operator-map {<  Query$FilterOperator/LESS_THAN
+                   >  Query$FilterOperator/GREATER_THAN
+                   =  Query$FilterOperator/EQUAL
                    >= Query$FilterOperator/GREATER_THAN_OR_EQUAL
                    <= Query$FilterOperator/LESS_THAN_OR_EQUAL
                    != Query$FilterOperator/NOT_EQUAL})
 
 (def sort-order-map {:desc Query$SortDirection/DESCENDING
-                     :asc Query$SortDirection/ASCENDING
-                     nil Query$SortDirection/ASCENDING})
+                     :asc  Query$SortDirection/ASCENDING
+                     nil   Query$SortDirection/ASCENDING})
 
 (defn filter-map
   [keyw jfilter-predicates]
@@ -160,7 +160,7 @@
 (defn get-option
   [options option?]
   (let [indexed-pairs (map-indexed vector options)]
-    (if-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]   
+    (if-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]
       (get (vec options) (inc index)))))
 
 (defn add-sorts
@@ -186,11 +186,11 @@
 
 (defn make-property-filter
   [pred-coll]
-   (let [[property operator-fn query-value] pred-coll
-         filter-operator (operator-map operator-fn)]
-     (if filter-operator
-       (Query$FilterPredicate. (name property) filter-operator query-value)
-       (throw (RuntimeException. (str "operator " operator-fn " not found in operator-map " (keys operator-map)))))))
+  (let [[property operator-fn query-value] pred-coll
+        filter-operator (operator-map operator-fn)]
+    (if filter-operator
+      (Query$FilterPredicate. (name property) filter-operator query-value)
+      (throw (RuntimeException. (str "operator " operator-fn " not found in operator-map " (keys operator-map)))))))
 
 (declare compose-query-filter)
 
@@ -199,8 +199,8 @@
   (loop [jfilter-preds []
          preds preds-coll]
     (if (seq preds)
-      (let [filter-fn (if (u/in (ffirst preds) [:or :and]) 
-                        compose-query-filter 
+      (let [filter-fn (if (u/in (ffirst preds) [:or :and])
+                        compose-query-filter
                         make-property-filter)]
         (recur (conj jfilter-preds (filter-fn (first preds)))
                (rest preds)))
@@ -214,6 +214,7 @@
       (filter-map condition jfilter-predicates))))
 
 (defn qbuild
+  "Build a query"
   [predicates options ent-kind filters]
   (->> (if (nil? filters) (make-property-filter predicates) filters)
        (.setFilter (Query. (name ent-kind)))
@@ -224,7 +225,7 @@
 (defn make-query
   [predicates options ent-kind]
   (if (seq predicates)
-    (qbuild predicates options ent-kind (compose-query-filter predicates)) 
+    (qbuild predicates options ent-kind (compose-query-filter predicates))
     (->> (Query. (name ent-kind))
          (set-ancestor-key options ent-kind)
          (set-keys-only options)
@@ -234,13 +235,13 @@
   ([pq-iterable]
    (lazify-qiterable pq-iterable (.iterator pq-iterable)))
   ([pq-iterable i]
-   (lazy-seq 
-    (when (.hasNext i)
-      (cons (gae-entity->map (.next i)) (lazify-qiterable pq-iterable i))))))
+   (lazy-seq
+     (when (.hasNext i)
+       (cons (gae-entity->map (.next i)) (lazify-qiterable pq-iterable i))))))
 
 (defn query-entity
   [predicates options ent-sym]
-  (->> ent-sym 
+  (->> ent-sym
        (make-query predicates options)
        (.prepare (DatastoreServiceFactory/getDatastoreService))
        .asIterable
@@ -250,31 +251,36 @@
 (defmacro ds-operation-in-transaction
   [tx & body]
   `(try
-    (let [body-result# (do ~@body)]
-      (.commit ~tx)
-      body-result#)
-    (catch Throwable err#
-      (do (.rollback ~tx)
-          (throw err#)))))
+     (let [body-result# (do ~@body)]
+       (.commit ~tx)
+       body-result#)
+     (catch Throwable err#
+       (do (.rollback ~tx)
+           (throw err#)))))
 
-(defmacro with-xg-transaction 
+(defmacro with-xg-transaction
   [& body]
   `(let [tx# (.beginTransaction (DatastoreServiceFactory/getDatastoreService) (TransactionOptions$Builder/withXG true))]
      (ds-operation-in-transaction tx# ~@body)))
 
-(defmacro with-transaction 
+(defmacro with-transaction
   [& body]
   `(let [tx# (.beginTransaction (DatastoreServiceFactory/getDatastoreService))]
      (ds-operation-in-transaction tx# ~@body)))
 
-                                        ; End DS Query support ;;;
+; End DS Query support ;;;
+(defmacro get-validation-meta
+  [sym]
+  `(:validation (meta '~sym)))
+
 (defmacro defentity
-  [entity-name entity-fields]
+  [entity-name entity-fields & validation-rules]
+  (prn (name (second (first validation-rules))))
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))
-        creator (symbol (str  '-> name))]
-    `(do 
+        creator (symbol (str '-> name))]
+    `(do
        (defrecord ~name ~entity-fields
          NdbEntity
          (save! [this#] (save-entity '~sym this#))
@@ -286,6 +292,17 @@
          ~(conj (map (constantly nil) entity-fields) creator))
 
        (defn ~(symbol (str 'create- name)) ~entity-fields
+         (if-let [val-rules# (seq '~validation-rules)]
+           (let [validation-fns# (map second (partition 2 (first val-rules#)))
+                 values# ~entity-fields
+                 validators-to-values# (partition 2 (interleave validation-fns# values#))]
+             (if (not (every? true? (map
+                                      (fn [[func# value#]]
+                                        (require (quote ((namespace func#))))
+                                        (load (namespace func#))
+                                        (let [evalue# (eval value#)]
+                                          ((eval func#) evalue#))) validators-to-values#)))
+               (throw (Exception. "my exception message")))))
          ~(conj (seq entity-fields) creator))
 
        (defn ~(symbol (str 'get- name)) [key#]
@@ -297,6 +314,6 @@
            (if (get-option (first options#) :keys-only)
              (map :key results#)
              (map #(merge ~empty-ent %) results#))))
-       
+
        (defn ~(symbol (str 'delete- name)) [key#]
          (delete-entity '~sym key#)))))
