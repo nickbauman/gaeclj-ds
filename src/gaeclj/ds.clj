@@ -1,7 +1,6 @@
 (ns gaeclj.ds
-  (:require [clj-time.core :as t]
-            [clj-time.coerce :as c]
-            [clojure.reflect :as r]
+  (:require [clj-time.coerce :as c]
+            [clojure.string :refer [last-index-of]]
             [clojure.tools.logging :as log]
             [gaeclj.util :as u])
   (:import [com.google.appengine.api.datastore
@@ -275,7 +274,6 @@
 
 (defmacro defentity
   [entity-name entity-fields & validation-rules]
-  (prn (name (second (first validation-rules))))
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))
@@ -302,7 +300,7 @@
                                         (load (namespace func#))
                                         (let [evalue# (eval value#)]
                                           ((eval func#) evalue#))) validators-to-values#)))
-               (throw (Exception. "my exception message")))))
+               (throw (Exception. (str "create-" (.getSimpleName ~name) " failed validation"))))))
          ~(conj (seq entity-fields) creator))
 
        (defn ~(symbol (str 'get- name)) [key#]
