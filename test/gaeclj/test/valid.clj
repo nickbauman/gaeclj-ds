@@ -22,16 +22,25 @@
             :ordered-amounts      gaeclj.valid/repeated-longs?])
 
 (deftest test-model-CostStrategy
-  (testing "Save PaymentStrategy"
-    (let [ent (create-CostStrategy "not a valid uuid1"
-                                   (t/date-time 1999 12 31)
+  (testing "Save CostStratety success"
+    (let [ent (create-CostStrategy "8e5625f8-60ec-11ea-a1ec-a45e60d5bfab"
+                                   (.getMillis (t/date-time 1999 12 31))
                                    (str (uuid/v1))
                                    "even distribution"
                                    [(str (uuid/v1)) (str (uuid/v1))]
-                                   [(float 1/2) (float 1/2)])
+                                   [1234 1234])
           ; save it
           saved-ent (save! ent)
           ; read it back from the db
           read-ent (query-CostStrategy [:uuid = (:uuid saved-ent)])]
-      (is (not (nil? read-ent)))
-      )))
+      (is (not (nil? read-ent))))))
+
+
+(deftest test-model-CostStrategy-invalid
+  (testing "Save CostStratety invalid"
+    (is (thrown? RuntimeException (create-CostStrategy "invalid"
+                                                       (t/date-time 1999 12 31)
+                                                       (str (uuid/v1))
+                                                       "even distribution"
+                                                       [(str (uuid/v1)) (str (uuid/v1))]
+                                                       [1/2 1/2])))))

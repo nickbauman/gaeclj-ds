@@ -1,6 +1,6 @@
 (ns gaeclj.ds
   (:require [clj-time.coerce :as c]
-            [clojure.string :refer [last-index-of]]
+            [clojure.string :refer [join]]
             [clojure.tools.logging :as log]
             [gaeclj.util :as u])
   (:import [com.google.appengine.api.datastore
@@ -273,7 +273,7 @@
   `(:validation (meta '~sym)))
 
 (defmacro defentity
-  [entity-name entity-fields & validation-rules]
+  [entity-name entity-fields & validation]
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))
@@ -290,17 +290,27 @@
          ~(conj (map (constantly nil) entity-fields) creator))
 
        (defn ~(symbol (str 'create- name)) ~entity-fields
-         (if-let [val-rules# (seq '~validation-rules)]
+         (if-let [val-rules# (seq '~validation)]
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
-                 validators-to-values# (partition 2 (interleave validation-fns# values#))]
-             (if (not (every? true? (map
-                                      (fn [[func# value#]]
-                                        (require (quote ((namespace func#))))
-                                        (load (namespace func#))
-                                        (let [evalue# (eval value#)]
-                                          ((eval func#) evalue#))) validators-to-values#)))
-               (throw (Exception. (str "create-" (.getSimpleName ~name) " failed validation"))))))
+                 validators-to-values# (partition 2 (interleave validation-fns# values#))
+                 keys# (map first (partition 2 (first val-rules#)))]
+             (if (u/in false (map
+                               (fn [[f# v#]]
+                                 (require (quote ((namespace f#))))
+                                 (load (namespace f#))
+                                 ((eval f#) (eval v#)))
+                               validators-to-values#))
+               ; gather the errors
+               (let [results# (map
+                                (fn [[f# v#]]
+                                  (require (quote ((namespace f#))))
+                                  (load (namespace f#))
+                                  ((eval f#) (eval v#)))
+                                validators-to-values#)
+                     props-to-results# (partition 2 (interleave keys# results#))
+                     invalid-props# (map first (filter (fn [[_# result#]] (false? result#)) props-to-results#))]
+                 (throw (RuntimeException. (str "(create-" (.getSimpleName ~name) " ...) failed validation for props " (join ", " invalid-props#))))))))
          ~(conj (seq entity-fields) creator))
 
        (defn ~(symbol (str 'get- name)) [key#]

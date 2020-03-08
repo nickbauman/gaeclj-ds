@@ -24,3 +24,7 @@
 (defn repeated-longs?
   [x]
   (and (seq x) (every? true? (map long? x))))
+
+(defn repeated-floats?
+  [x]
+  (and (seq x) (every? true? (map #(or (float? %1) (ratio? %1)) x))))
