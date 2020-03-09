@@ -13,7 +13,7 @@ You will need the [Java SDK for AppEngine and its dependencies](https://cloud.go
 Leiningen Clojars dependency:
 
 ```
-[gaeclj-ds "0.1.2"]
+[gaeclj-ds "0.1.3"]
 ```
 
 
@@ -87,6 +87,50 @@ Leiningen Clojars dependency:
    (delete! root-entity)
 ```
 
+## Validation on create
+
+Optionally, you can declare rules that are applied to each property before the entity is created.
+
+```clojure
+(defentity CostStrategy
+           [uuid
+            create-date
+            cost-uuid
+            strategy-description
+            ordered-member-uuids
+            ordered-percentages]
+           [:uuid                 gaeclj.valid/valid-uuid?
+            :create-date          gaeclj.valid/long?
+            :cost-uuid            gaeclj.valid/valid-uuid?
+            :strategy-description gaeclj.valid/string-or-nil?
+            :ordered-member-uuids gaeclj.valid/repeated-uuid?
+            :ordered-amounts      gaeclj.valid/repeated-longs?])
+```
+
+When created a new `CostStrategy` the rules are applied.
+
+```clojure
+(create-CostStrategy "invalid uuid string"
+                      (.getMillis (t/date-time 1999 12 31))
+                      (str (uuid/v1))
+                      "even distribution"
+                      [(str (uuid/v1)) (str (uuid/v1))]
+                      [1/2 1/2])
+```
+
+Results in an `RuntimeException` thrown.
+
+```text
+java.lang.RuntimeException: (create-CostStrategy ...) failed validation for props :uuid, :ordered-amounts
+ at gaeclj.test.valid$create_CostStrategy.invokeStatic (valid.clj:10)
+    gaeclj.test.valid$create_CostStrategy.invoke (valid.clj:10)
+    gaeclj.test.valid$fn__1961.invokeStatic (valid.clj:26)
+    gaeclj.test.valid/fn (valid.clj:24)
+    clojure.test$test_var$fn__9737.invoke (test.clj:717)
+    clojure.test$test_var.invokeStatic (test.clj:717)
+    clojure.test$test_var.invoke (test.clj:708)
+
+```
 ## Runing the automated tests
 
 Through leiningen
