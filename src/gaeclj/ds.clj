@@ -294,23 +294,17 @@
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
                  validators-to-values# (partition 2 (interleave validation-fns# values#))
-                 keys# (map first (partition 2 (first val-rules#)))]
-             (if (u/in false (map
-                               (fn [[f# v#]]
-                                 (require (quote ((namespace f#))))
-                                 (load (namespace f#))
-                                 ((eval f#) (eval v#)))
-                               validators-to-values#))
-               ; gather the errors
-               (let [results# (map
-                                (fn [[f# v#]]
-                                  (require (quote ((namespace f#))))
-                                  (load (namespace f#))
-                                  ((eval f#) (eval v#)))
-                                validators-to-values#)
-                     props-to-results# (partition 2 (interleave keys# results#))
-                     invalid-props# (map first (filter (fn [[_# result#]] (false? result#)) props-to-results#))]
-                 (throw (RuntimeException. (str "(create-" (.getSimpleName ~name) " ...) failed validation for props " (join ", " invalid-props#))))))))
+                 keys# (map first (partition 2 (first val-rules#)))
+                 results# (map
+                            (fn [[f# v#]]
+                              (require (quote ((namespace f#))))
+                              (load (namespace f#))
+                              ((eval f#) (eval v#)))
+                            validators-to-values#)
+                 props-to-results# (partition 2 (interleave keys# results#))
+                 invalid-props# (map first (filter (fn [[_# result#]] (false? result#)) props-to-results#))]
+             (if (seq invalid-props#)
+               (throw (RuntimeException. (str "(create-" (.getSimpleName ~name) " ...) failed validation for props " (join ", " invalid-props#)))))))
          ~(conj (seq entity-fields) creator))
 
        (defn ~(symbol (str 'get- name)) [key#]
