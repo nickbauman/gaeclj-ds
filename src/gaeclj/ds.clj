@@ -290,7 +290,7 @@
          ~(conj (map (constantly nil) entity-fields) creator))
 
        (defn ~(symbol (str 'create- name)) ~entity-fields
-         (if-let [val-rules# (seq '~validation)]
+         (if-let [val-rules# (seq '~validation)] ; optional validation
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
                  validators-to-values# (partition 2 (interleave validation-fns# values#))
