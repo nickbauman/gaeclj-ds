@@ -107,7 +107,7 @@ Optionally, you can declare rules that are applied to each property before the e
             :ordered-amounts      gaeclj.valid/repeated-longs?])
 ```
 
-When created a new `CostStrategy` the rules are applied.
+When creating a new `CostStrategy` the rules are applied.
 
 ```clojure
 (create-CostStrategy "invalid uuid string"
@@ -115,7 +115,7 @@ When created a new `CostStrategy` the rules are applied.
                       (str (uuid/v1))
                       "even distribution"
                       [(str (uuid/v1)) (str (uuid/v1))]
-                      [1/2 1/2])
+                      [1/2 1/2]) ; ratios are not longs, so also invalid
 ```
 
 Results in an `RuntimeException` thrown.
@@ -129,7 +129,6 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
     clojure.test$test_var$fn__9737.invoke (test.clj:717)
     clojure.test$test_var.invokeStatic (test.clj:717)
     clojure.test$test_var.invoke (test.clj:708)
-
 ```
 ## Runing the automated tests
 
