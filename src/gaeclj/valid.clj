@@ -25,6 +25,10 @@
   [x]
   (and (seq x) (every? true? (map long? x))))
 
+(defn bool?
+  [x]
+  (boolean? x))
+
 (defn repeated-floats?
   [x]
   (and (seq x) (every? true? (map #(or (float? %1) (ratio? %1)) x))))
