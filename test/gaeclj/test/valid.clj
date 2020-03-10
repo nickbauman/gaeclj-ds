@@ -9,12 +9,14 @@
 
 (defentity CostStrategy
            [uuid
+            recurring?
             create-date
             cost-uuid
             strategy-description
             ordered-member-uuids
             ordered-percentages]
            [:uuid                 gaeclj.valid/valid-uuid?
+            :recurring?           gaeclj.valid/bool?
             :create-date          gaeclj.valid/long?
             :cost-uuid            gaeclj.valid/valid-uuid?
             :strategy-description gaeclj.valid/string-or-nil?
@@ -24,6 +26,7 @@
 (deftest test-model-CostStrategy
   (testing "Save CostStratety success"
     (let [ent (create-CostStrategy "8e5625f8-60ec-11ea-a1ec-a45e60d5bfab"
+                                   false
                                    (.getMillis (t/date-time 1999 12 31))
                                    (str (uuid/v1))
                                    "even distribution"
@@ -39,6 +42,7 @@
 (deftest test-model-CostStrategy-invalid
   (testing "Save CostStratety invalid"
     (is (thrown? RuntimeException (create-CostStrategy "invalid"
+                                                       true
                                                        (t/date-time 1999 12 31)
                                                        (str (uuid/v1))
                                                        "even distribution"

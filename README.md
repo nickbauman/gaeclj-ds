@@ -13,7 +13,7 @@ You will need the [Java SDK for AppEngine and its dependencies](https://cloud.go
 Leiningen Clojars dependency:
 
 ```
-[gaeclj-ds "0.1.3"]
+[gaeclj-ds "0.1.3.1"]
 ```
 
 

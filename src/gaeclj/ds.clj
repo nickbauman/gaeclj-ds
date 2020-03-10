@@ -48,6 +48,9 @@
 
   ; support for repeated properties
   java.util.List
+  (->prop [d] d)
+
+  java.lang.Boolean
   (->prop [d] d))
 
 (extend-protocol FromNdbValue
@@ -65,6 +68,9 @@
 
   ; support for repeated properties
   java.util.List
+  (<-prop [d] d)
+
+  java.lang.Boolean
   (<-prop [d] d))
 
 (defn make-key
