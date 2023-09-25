@@ -131,7 +131,7 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
 ```
 ## Runing the automated tests
 
-        clj -M:test
+        clj -X:test
 
 ## License
 
