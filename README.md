@@ -10,10 +10,10 @@ You will need the [Java SDK for AppEngine and its dependencies](https://cloud.go
 
 ## Using
 
-Leiningen Clojars dependency:
+clojars dependency:
 
 ```
-[gaeclj-ds "0.1.3.1"]
+[gaeclj-ds "0.1.4.1"]
 ```
 
 
@@ -110,9 +110,8 @@ Optionally, you can declare rules that are applied to each property before the e
 When creating a new `CostStrategy` the rules are applied.
 
 ```clojure
-(create-CostStrategy "invalid uuid string"
-                      (.getMillis (t/date-time 1999 12 31))
-                      (str (uuid/v1))
+(create-CostStrategy (.getMillis (t/date-time 1999 12 31))
+                      (str (uuid/v1)) ; invalid uuid string
                       "even distribution"
                       [(str (uuid/v1)) (str (uuid/v1))]
                       [1/2 1/2]) ; ratios are not longs, so also invalid
@@ -132,9 +131,7 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
 ```
 ## Runing the automated tests
 
-Through leiningen
-
-    > lein test
+        clj -M:test
 
 ## License
 

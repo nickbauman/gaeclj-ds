@@ -31,7 +31,7 @@
                                    (str (uuid/v1))
                                    "even distribution"
                                    [(str (uuid/v1)) (str (uuid/v1))]
-                                   [1234 1234])
+                                   [1234 "foo"])
           ; save it
           saved-ent (save! ent)
           ; read it back from the db
