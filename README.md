@@ -131,7 +131,16 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
 ```
 ## Runing the automated tests
 
+Externally
+
         clj -X:test
+
+From within a REPL
+
+        (:require '[clojure.test :refer :all])
+        (:require '[gaeclj.test.valid])
+        (clojure.test/run-tests 'gaeclj.test.valid)
+
 
 ## License
 

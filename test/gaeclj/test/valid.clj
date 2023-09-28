@@ -16,12 +16,12 @@
             ordered-member-uuids
             ordered-percentages]
            [:uuid                 gaeclj.valid/valid-uuid?
-            :recurring?           gaeclj.valid/bool?
-            :create-date          gaeclj.valid/long?
-            :cost-uuid            gaeclj.valid/valid-uuid?
-            :strategy-description gaeclj.valid/string-or-nil?
-            :ordered-member-uuids gaeclj.valid/repeated-uuid?
-            :ordered-amounts      gaeclj.valid/repeated-longs?])
+            :recurring?            gaeclj.valid/bool?
+            :create-date           gaeclj.valid/long?
+            :cost-uuid             gaeclj.valid/valid-uuid?
+            :strategy-description  gaeclj.valid/string-or-nil?
+            :ordered-member-uuids  gaeclj.valid/repeated-uuid?
+            :ordered-amounts       gaeclj.valid/repeated-longs?])
 
 (deftest test-model-CostStrategy
   (testing "Save CostStratety success"

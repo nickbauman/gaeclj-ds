@@ -1,4 +1,5 @@
 (ns gaeclj.valid
+  "Data validation functions"
   (:require [gaeclj.util :refer [try-with-default]]
             [clojure.tools.logging :as log]))
 

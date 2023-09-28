@@ -1,4 +1,5 @@
 (ns gaeclj.ds
+ "Google App Engine Datastore DSL"
   (:require [clj-time.coerce :as c]
             [clojure.string :refer [join]]
             [clojure.tools.logging :as log]
@@ -280,6 +281,14 @@
 
 (defmacro defentity
   [entity-name entity-fields & validation]
+ ;; ([:uuid (var gaeclj.valid/valid-uuid?)
+ ;; :recurring? (var gaeclj.valid/bool?)
+ ;; :create-date (var gaeclj.valid/long?)
+ ;; :cost-uuid (var gaeclj.valid/valid-uuid?)
+ ;; :strategy-description (var gaeclj.valid/string-or-nil?)
+ ;; :ordered-member-uuids (var gaeclj.valid/repeated-uuid?)
+ ;; :ordered-amounts (var gaeclj.valid/repeated-longs?)])
+ ;(log/debug validation)
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))
@@ -292,10 +301,17 @@
          (delete! [this#] (delete-entity '~sym (:key this#)))
          (gae-key [this#] (as-gae-key '~sym (:key this#))))
 
+      ~(symbol (str 'create- name)) ~entity-fields
+
+      (log/debug "############## 2 #################")
+
        (def ~empty-ent
          ~(conj (map (constantly nil) entity-fields) creator))
 
+      (log/debug "############## 3 #################")
+
        (defn ~(symbol (str 'create- name)) ~entity-fields
+        (log/debug "############## 4 #################")
          (if-let [val-rules# (seq '~validation)] ; optional validation
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
