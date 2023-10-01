@@ -1,4 +1,4 @@
-(def appengine-version "2.0.13")
+(def appengine-version "2.0.19")
 
 (defproject gaeclj-ds "0.1.3.2"
   :description "A DSL to support querying Google App Engine's Datastore"
