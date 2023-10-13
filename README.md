@@ -134,7 +134,9 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
 
 Through leiningen
 
-    > lein test
+```shell
+lein test
+```
 
 ## License
 
