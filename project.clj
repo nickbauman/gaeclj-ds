@@ -8,13 +8,13 @@
             :comments "same as Clojure"}
   :min-lein-version "2.6.0"
   :url "https://github.com/nickbauman/gaeclj-ds"
-  :javac-options ["-target" "1.8" "-source" "1.8" "-Xlint:-options"]
+  :javac-options ["-target" "1.11" "-source" "1.11" "-Xlint:-options"]
   :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/tools.logging "1.0.0"]
+                 [org.clojure/tools.logging "1.2.4"]
                  [org.clojure/data.json "2.4.0"]
                  [clj-time "0.15.2"]
-                 [ch.qos.logback/logback-classic "1.2.3"]
-                 [com.google.guava/guava "31.1-jre"]
+                 [ch.qos.logback/logback-classic "1.4.11"]
+                 [com.google.guava/guava "32.1.3-jre"]
                  [com.google.appengine/appengine-api-1.0-sdk ~appengine-version]
                  [org.apache.httpcomponents/httpclient "4.5.14"]
                  [com.google.api-client/google-api-client-appengine "2.2.0"
