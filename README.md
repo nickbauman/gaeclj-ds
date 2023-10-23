@@ -6,14 +6,14 @@ A Clojure query DSL for Google App Engine for Java 8. Inspired by the Python NDB
 
 ## Prerequisites
 
-You will need the [Java SDK for AppEngine and its dependencies](https://cloud.google.com/appengine/docs/standard/java/download). 
+You will need the [Java SDK for AppEngine and its dependencies](https://cloud.google.com/appengine/docs/standard/java-gen2/runtime).
 
 ## Using
 
 Leiningen Clojars dependency:
 
 ```
-[gaeclj-ds "0.1.3.2"]
+[gaeclj-ds "0.1.3.3"]
 ```
 
 
