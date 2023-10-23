@@ -1,6 +1,6 @@
 # gaeclj-ds
 
-A Clojure query DSL for Google App Engine for Java 8. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
+A Clojure query DSL for Google App Engine for Java 11. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
 
 [![Clojars Project](https://img.shields.io/clojars/v/gaeclj-ds.svg)](https://clojars.org/gaeclj-ds)
 
