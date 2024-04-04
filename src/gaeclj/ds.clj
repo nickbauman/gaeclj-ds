@@ -301,12 +301,7 @@
                  values# ~entity-fields
                  validators-to-values# (partition 2 (interleave validation-fns# values#))
                  keys# (map first (partition 2 (first val-rules#)))
-                 results# (map
-                            (fn [[f# v#]]
-                              (require (quote ((namespace f#))))
-                              (load (namespace f#))
-                              ((eval f#) (eval v#)))
-                            validators-to-values#)
+                 results# (map (fn [[f# v#]] ((eval f#) (eval v#))) validators-to-values#)
                  props-to-results# (partition 2 (interleave keys# results#))
                  invalid-props# (map first (filter (fn [[_# result#]] (false? result#)) props-to-results#))]
              (if (seq invalid-props#)

@@ -15,13 +15,13 @@
             strategy-description
             ordered-member-uuids
             ordered-percentages]
-           [:uuid                 gaeclj.valid/valid-uuid?
-            :recurring?           gaeclj.valid/bool?
-            :create-date          gaeclj.valid/long?
-            :cost-uuid            gaeclj.valid/valid-uuid?
-            :strategy-description gaeclj.valid/string-or-nil?
-            :ordered-member-uuids gaeclj.valid/repeated-uuid?
-            :ordered-amounts      gaeclj.valid/repeated-longs?])
+           [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid?)
+            :recurring?           (requiring-resolve `gaeclj.valid/bool?)
+            :create-date          (requiring-resolve `gaeclj.valid/long?)
+            :cost-uuid            (requiring-resolve `gaeclj.valid/valid-uuid?)
+            :strategy-description (requiring-resolve `gaeclj.valid/string-or-nil?)
+            :ordered-member-uuids (requiring-resolve `gaeclj.valid/repeated-uuid?)
+            :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
 
 (deftest test-model-CostStrategy
   (testing "Save CostStratety success"
