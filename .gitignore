@@ -9,7 +9,10 @@
 /checkouts
 /classes
 /target
-foobarbaz
 gaeclj-ds.iml
 pom.xml
 pom.xml.asc
+.lsp
+.vscode
+.clj-kondo/.cache
+.calva/

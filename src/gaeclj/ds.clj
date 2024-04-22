@@ -1,4 +1,5 @@
 (ns gaeclj.ds
+  "Implementation of the core Clojure Datastore DSL"
   (:require [clj-time.coerce :as c]
             [clojure.string :refer [join]]
             [clojure.tools.logging :as log]
@@ -140,7 +141,7 @@
 
 (defn !=
   "Available to complete the operator-map logic. Reverse logic of the = function"
-  ([x] (not (= x)))
+  ([x] (not x))
   ([x y] (not (clojure.lang.Util/equiv x y)))
   ([x y & more]
    (not (apply = x y more))))
@@ -165,7 +166,7 @@
 (defn get-option
   [options option?]
   (let [indexed-pairs (map-indexed vector options)]
-    (if-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]
+    (when-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]
       (get (vec options) (inc index)))))
 
 (defn add-sorts
@@ -241,8 +242,8 @@
    (lazify-qiterable pq-iterable (.iterator pq-iterable)))
   ([pq-iterable i]
    (lazy-seq
-     (when (.hasNext i)
-       (cons (gae-entity->map (.next i)) (lazify-qiterable pq-iterable i))))))
+    (when (.hasNext i)
+      (cons (gae-entity->map (.next i)) (lazify-qiterable pq-iterable i))))))
 
 (defn query-entity
   [predicates options ent-sym]
