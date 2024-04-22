@@ -1,7 +1,9 @@
-(def appengine-version "2.0.20")
+(def appengine-version
+  "The version revs pretty quickly so you might want to increment this a lot"
+  "2.0.20")
 
 (defproject gaeclj-ds "0.1.3.3"
-  :description "A DSL to support querying Google App Engine's Datastore"
+  :description "A DSL to Google App Engine's Datastore"
   :license {:name "Eclipse Public License - v 1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"
             :distribution :repo
@@ -20,15 +22,15 @@
                  [com.google.api-client/google-api-client-appengine "2.2.0"
                   :exclusions [com.google.guava/guava-jdk5]]
                  [com.google.oauth-client/google-oauth-client-appengine "1.34.1"
-                  :exclusions [com.google.guava/guava-jdk5]]       
+                  :exclusions [com.google.guava/guava-jdk5]]
                  [com.google.http-client/google-http-client-appengine "1.43.3"
                   :exclusions [com.google.guava/guava-jdk5]]
                  [danlentz/clj-uuid "0.1.9"]]
+  :plugins [[io.github.borkdude/lein-lein2deps "0.1.0"]]
   :java-source-paths ["src-java"]
   :aot :all
   :profiles
   {:dev
    {:dependencies [[com.google.appengine/appengine-testing ~appengine-version]
-                   ;[com.google.appengine/appengine-api-labs ~appengine-version]
                    [com.google.appengine/appengine-api-stubs ~appengine-version]
                    [com.google.appengine/appengine-tools-sdk ~appengine-version]]}})

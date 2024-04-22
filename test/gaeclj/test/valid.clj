@@ -8,20 +8,20 @@
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
 (defentity CostStrategy
-           [uuid
-            recurring?
-            create-date
-            cost-uuid
-            strategy-description
-            ordered-member-uuids
-            ordered-percentages]
-           [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid?)
-            :recurring?           (requiring-resolve `gaeclj.valid/bool?)
-            :create-date          (requiring-resolve `gaeclj.valid/long?)
-            :cost-uuid            (requiring-resolve `gaeclj.valid/valid-uuid?)
-            :strategy-description (requiring-resolve `gaeclj.valid/string-or-nil?)
-            :ordered-member-uuids (requiring-resolve `gaeclj.valid/repeated-uuid?)
-            :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
+  [uuid
+   recurring?
+   create-date
+   cost-uuid
+   strategy-description
+   ordered-member-uuids
+   ordered-percentages]
+  [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+   :recurring?           (requiring-resolve `gaeclj.valid/bool?)
+   :create-date          (requiring-resolve `gaeclj.valid/long?)
+   :cost-uuid            (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+   :strategy-description (requiring-resolve `gaeclj.valid/string-or-nil?)
+   :ordered-member-uuids (requiring-resolve `gaeclj.valid/repeated-uuid?)
+   :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
 
 (deftest test-model-CostStrategy
   (testing "Save CostStratety success"
@@ -37,7 +37,6 @@
           ; read it back from the db
           read-ent (query-CostStrategy [:uuid = (:uuid saved-ent)])]
       (is (not (nil? read-ent))))))
-
 
 (deftest test-model-CostStrategy-invalid
   (testing "Save CostStratety invalid"

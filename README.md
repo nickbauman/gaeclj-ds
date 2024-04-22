@@ -1,6 +1,6 @@
 # gaeclj-ds
 
-A Clojure query DSL for Google App Engine for Java 11. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
+A Clojure query DSL for Google App Engine for Java 11 & 17. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
 
 [![Clojars Project](https://img.shields.io/clojars/v/gaeclj-ds.svg)](https://clojars.org/gaeclj-ds)
 
@@ -99,9 +99,9 @@ Optionally, you can declare rules that are applied to each property before the e
             strategy-description
             ordered-member-uuids
             ordered-percentages]
-           [:uuid                 gaeclj.valid/valid-uuid?
+           [:uuid                 gaeclj.valid/valid-uuid-str?
             :create-date          gaeclj.valid/long?
-            :cost-uuid            gaeclj.valid/valid-uuid?
+            :cost-uuid            gaeclj.valid/valid-uuid-str?
             :strategy-description gaeclj.valid/string-or-nil?
             :ordered-member-uuids gaeclj.valid/repeated-uuid?
             :ordered-amounts      gaeclj.valid/repeated-longs?])

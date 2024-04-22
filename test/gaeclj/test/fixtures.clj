@@ -1,24 +1,24 @@
 (ns gaeclj.test.fixtures
-(:import [com.google.appengine.tools.development.testing 
-          LocalServiceTestConfig 
-          LocalServiceTestHelper 
-          LocalDatastoreServiceTestConfig])
-(:require [clojure.java.io :as io]))
+  (:import [com.google.appengine.tools.development.testing
+            LocalServiceTestConfig
+            LocalServiceTestHelper
+            LocalDatastoreServiceTestConfig])
+  (:require [clojure.java.io :as io]))
 
 (defn- datastore-config []
-  (doto 
-      (LocalDatastoreServiceTestConfig.)
+  (doto
+   (LocalDatastoreServiceTestConfig.)
     (.setApplyAllHighRepJobPolicy)
     (.setNoStorage true)))
 
 (defn- create-local-test-helper []
   (LocalServiceTestHelper. (into-array LocalServiceTestConfig [(datastore-config)])))
 
-(defn setup-local-service-test-helper [f] 
+(defn setup-local-service-test-helper [f]
   (let [helper (create-local-test-helper)]
-    (try 
+    (try
       (.setUp helper)
       (f)
-      (finally 
+      (finally
         (.tearDown helper)))))
 

@@ -56,8 +56,8 @@
       (is (:key saved-ent))
 
       (are [x y] (= x y)
-                 "Something Saved" (:content fetched-ent)
-                 saved-time (:saved-time fetched-ent)))))
+        "Something Saved" (:content fetched-ent)
+        saved-time (:saved-time fetched-ent)))))
 
 (deftest test-repeated-properties
   (testing "Save entity that has a repeated property"
@@ -97,8 +97,8 @@
       (is (= (list entity entity3 entity2) (query-AnotherEntity [:or [:content = "Some content woo"] [:int-value > 5]])))
       ; compound queries with nested compound predicates
       (is (= (list entity entity2) (query-AnotherEntity
-                                     [:or [:content = "Other content"]
-                                      [:and [:saved-time < (.toDate (t/date-time 1983 3 5))] [:int-value = 6]]]))))
+                                    [:or [:content = "Other content"]
+                                     [:and [:saved-time < (.toDate (t/date-time 1983 3 5))] [:int-value = 6]]]))))
 
     (testing "query keys-only and order-by support"
       ; keys-only support
@@ -135,11 +135,11 @@
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
     ; fails because this is an XG transaction: all entities are their own roots
     (is (thrown-with-msg?
-          IllegalArgumentException #"cross-group transaction need to be explicitly specified, see TransactionOptions.Builder.withXG"
-          (with-transaction
-            (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
-            (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
-            (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
+         IllegalArgumentException #"cross-group transaction need to be explicitly specified, see TransactionOptions.Builder.withXG"
+         (with-transaction
+           (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
+           (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002)) 
+           (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
 
     (is (= 0 (count (query-AnotherEntity [:int-value > 51000]))))
