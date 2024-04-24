@@ -1,4 +1,5 @@
 (ns gaeclj.valid
+  "functions that can be used as ad-hoc validators for entities"
   (:require [gaeclj.util :refer [try-with-default]]
             [clojure.tools.logging :as log]))
 

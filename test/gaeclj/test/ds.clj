@@ -1,4 +1,5 @@
 (ns gaeclj.test.ds
+  "Demonstrate all the Datastore features we support"
   (:require [clojure.test :refer :all]
             [gaeclj.test.fixtures :as fixtures]
             [clj-uuid :as uuid]
@@ -138,7 +139,7 @@
          IllegalArgumentException #"cross-group transaction need to be explicitly specified, see TransactionOptions.Builder.withXG"
          (with-transaction
            (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
-           (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002)) 
+           (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
            (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
 

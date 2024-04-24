@@ -1,4 +1,5 @@
 (ns gaeclj.ds
+  "Implementation of the core Clojure Datastore DSL"
   (:require [clj-time.coerce :as c]
             [clojure.string :refer [join]]
             [clojure.tools.logging :as log]

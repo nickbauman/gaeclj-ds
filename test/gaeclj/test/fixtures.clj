@@ -1,4 +1,5 @@
 (ns gaeclj.test.fixtures
+  "Google Cloud API test doubles for GAE"
   (:import [com.google.appengine.tools.development.testing
             LocalServiceTestConfig
             LocalServiceTestHelper

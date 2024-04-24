@@ -1,4 +1,5 @@
 (ns gaeclj.test.valid
+  "Demonstrates validation using ad-hoc functions from an arbitrary namespace"
   (:require [clojure.test :refer :all]
             [clj-uuid :as uuid]
             [clj-time.core :as t]
