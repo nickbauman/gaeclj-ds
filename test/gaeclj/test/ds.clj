@@ -150,3 +150,4 @@
       (save! (create-AnotherEntity "Even More New Content" (t/date-time 2016 12 10) 51003)))
     (is (= 3 (count (query-AnotherEntity [:int-value > 51000]))))))
 
+(run-tests)

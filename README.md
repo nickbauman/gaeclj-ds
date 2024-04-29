@@ -4,6 +4,15 @@ A Clojure query DSL for Google App Engine for Java 11 & 17. Inspired by the Pyth
 
 [![Clojars Project](https://img.shields.io/clojars/v/gaeclj-ds.svg)](https://clojars.org/gaeclj-ds)
 
+## Coverage
+
+|    Namespace | % Forms | % Lines |
+|--------------|---------|---------|
+|    gaeclj.ds |   96.40 |   94.87 |
+|  gaeclj.util |  100.00 |  100.00 |
+| gaeclj.valid |   43.51 |   84.21 |
+|    ALL FILES |   93.33 |   94.12 |
+
 ## Prerequisites
 
 You will need the [Java SDK for AppEngine and its dependencies](https://cloud.google.com/appengine/docs/standard/java-gen2/runtime).

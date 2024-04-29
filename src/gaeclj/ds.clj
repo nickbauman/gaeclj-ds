@@ -21,7 +21,7 @@
             TransactionOptions$Builder]))
 
 (defprotocol NdbEntity
-  (save! [this] [this parent-key] "Saves the entity. Saves the entity with its parent key.")
+  (save! [this] [this parent-key] "Saves the entity with its parent key.")
   (delete! [this] "Deletes the entity")
   (gae-key [this] "Produces Java SDK Appengine key from Clojure NdbEntity information"))
 
@@ -75,25 +75,28 @@
   (<-prop [d] d))
 
 (defn make-key
+  "Creates an instance of com.google.appengine.api.datastore.Key"
   ([kind value]
    (KeyFactory/createKey (name kind) value))
   ([kind parent value]
    (KeyFactory/createKey parent (name kind) value)))
 
 (defn check-key
-  [parent-key entity-kind]
-  (if parent-key
+  "Checks whether we indeed are working with a key"
+  [parent-key]
+  (when parent-key
     (if (isa? (type parent-key) Key)
       parent-key
       (throw (RuntimeException. (str "parent key " parent-key " not an instance of " Key))))))
 
 (defn save-entity
+  "Saves the entity with all the trimmings"
   ([entity-type entity]
    (save-entity entity-type entity nil))
   ([entity-type entity parent-key]
    (log/debugf "Saving %s: %s" entity-type (pr-str entity))
    (let [datastore (DatastoreServiceFactory/getDatastoreService)
-         gae-parent-key (check-key parent-key entity-type)
+         gae-parent-key (check-key parent-key)
          gae-ent (if (:key entity)
                    (if gae-parent-key
                      (Entity. (name entity-type) (:key entity) gae-parent-key)
@@ -120,20 +123,26 @@
                           (.getName gae-key)
                           (.getId gae-key)))))
 
-(defn get-entity [entity-kind entity-key]
+(defn get-entity
+  "Takes an entity kind and a datastore key and attempts to retrieve it, if possible"
+  [entity-kind entity-key]
+  (tap> {:get-entity 2 :entity-kind entity-kind :entity-key entity-key})
   (let [datastore (DatastoreServiceFactory/getDatastoreService)
         result (try
                  (gae-entity->map (.get datastore (make-key entity-kind entity-key)))
-                 (catch EntityNotFoundException e
+                 (catch EntityNotFoundException _
                    nil))]
     (log/debugf "Getting %s:%s: found %s" entity-kind entity-key (pr-str result))
     result))
 
 (defn as-gae-key
+  "Creates corresponding datastore key for an entity "
   [entity-kind entity-key]
   (make-key entity-kind entity-key))
 
-(defn delete-entity [entity-kind entity-key & more-keys]
+(defn delete-entity
+  "Deletes any number of keys of a certain kind"
+  [entity-kind entity-key & more-keys]
   (let [datastore (DatastoreServiceFactory/getDatastoreService)]
     (.delete datastore (map #(make-key entity-kind %) (conj more-keys entity-key)))))
 
@@ -146,52 +155,64 @@
   ([x y & more]
    (not (apply = x y more))))
 
-(def operator-map {<  Query$FilterOperator/LESS_THAN
-                   >  Query$FilterOperator/GREATER_THAN
-                   =  Query$FilterOperator/EQUAL
-                   >= Query$FilterOperator/GREATER_THAN_OR_EQUAL
-                   <= Query$FilterOperator/LESS_THAN_OR_EQUAL
-                   != Query$FilterOperator/NOT_EQUAL})
+(def operator-map
+  "selects a logical operator for a query"
+  {<  Query$FilterOperator/LESS_THAN
+   >  Query$FilterOperator/GREATER_THAN
+   =  Query$FilterOperator/EQUAL
+   >= Query$FilterOperator/GREATER_THAN_OR_EQUAL
+   <= Query$FilterOperator/LESS_THAN_OR_EQUAL
+   != Query$FilterOperator/NOT_EQUAL})
 
-(def sort-order-map {:desc Query$SortDirection/DESCENDING
-                     :asc  Query$SortDirection/ASCENDING
-                     nil   Query$SortDirection/ASCENDING})
+(def sort-order-map
+  "returns the API sort order for the query"
+  {:desc Query$SortDirection/DESCENDING
+   :asc  Query$SortDirection/ASCENDING
+   nil   Query$SortDirection/ASCENDING})
 
 (defn filter-map
+  "Selects the api predicate type 'and' or 'or"
   [keyw jfilter-predicates]
   (if (= :or keyw)
     (Query$CompositeFilterOperator/or jfilter-predicates)
     (Query$CompositeFilterOperator/and jfilter-predicates)))
 
-(defn get-option
-  [options option?]
-  (let [indexed-pairs (map-indexed vector options)]
-    (when-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]
-      (get (vec options) (inc index)))))
-
 (defn add-sorts
+  "Add sorting calls if they're present. Returns the query"
   [options query]
-  (if-let [ordering (if (and (seq options) (not (= -1 (.indexOf options :order-by)))) (rest (subvec options (.indexOf options :order-by))))]
+  (if-let [ordering (when (and (seq options) (not (= -1 (.indexOf options :order-by)))) (rest (subvec options (.indexOf options :order-by))))]
     (loop [[[order-prop direction] & more] (partition 2 ordering)]
       (if (and order-prop direction (not (= order-prop :keys-only)))
         (do (.addSort query (name order-prop) (get sort-order-map direction)) (recur more))
         query))
     query))
 
+(defn get-option
+  "Get an option from options, if exists"
+  [options option?]
+  (let [indexed-pairs (map-indexed vector options)]
+    (when-let [[[index _]] (seq (filter #(= option? (second %)) indexed-pairs))]
+      (get (vec options) (inc index)))))
+
 (defn set-keys-only
+  "Sets the query to a keys-only query and returns it"
   [options query]
   (if (get-option options :keys-only)
     (.setKeysOnly query)
     query))
 
 (defn set-ancestor-key
-  [options entity-kind query]
-  (if-let [parent-key (check-key (get-option options :ancestor-key) entity-kind)]
+  "Assigns the ancestor for this query, if it exists, and returns it. Otherwise throws."
+  [options query]
+  (if-let [parent-key (check-key (get-option options :ancestor-key))]
     (.setAncestor query parent-key)
     query))
 
 (defn make-property-filter
+  "Takes `pred-coll` consisting of vector of a property, an operator and
+   a value for that property to build a filter"
   [pred-coll]
+  (tap> {:make-property-filter true :pred-coll pred-coll})
   (let [[property operator-fn query-value] pred-coll
         filter-operator (operator-map operator-fn)]
     (if filter-operator
@@ -201,6 +222,7 @@
 (declare compose-query-filter)
 
 (defn compose-predicates
+  "Figures out how to convert the query vector into valid native calls to Datastore"
   [preds-coll]
   (loop [jfilter-preds []
          preds preds-coll]
@@ -213,31 +235,24 @@
       jfilter-preds)))
 
 (defn compose-query-filter
+  "Convert an expression like `[] [:ancestor-key (gae-key root-entity)]` into a native filter query"
   [preds-vec]
-  (if (u/in (first preds-vec) [:and :or])
+  (when (u/in (first preds-vec) [:and :or])
     (let [condition (first preds-vec)
           jfilter-predicates (compose-predicates (rest preds-vec))]
       (filter-map condition jfilter-predicates))))
 
-(defn qbuild
+(defn build-query
   "Build a query"
   [predicates options ent-kind filters]
   (->> (if (nil? filters) (make-property-filter predicates) filters)
        (.setFilter (Query. (name ent-kind)))
-       (set-ancestor-key options ent-kind)
+       (set-ancestor-key options)
        (set-keys-only options)
        (add-sorts options)))
 
-(defn make-query
-  [predicates options ent-kind]
-  (if (seq predicates)
-    (qbuild predicates options ent-kind (compose-query-filter predicates))
-    (->> (Query. (name ent-kind))
-         (set-ancestor-key options ent-kind)
-         (set-keys-only options)
-         (add-sorts options))))
-
 (defn lazify-qiterable
+  "Make results lazy"
   ([pq-iterable]
    (lazify-qiterable pq-iterable (.iterator pq-iterable)))
   ([pq-iterable i]
@@ -245,7 +260,21 @@
     (when (.hasNext i)
       (cons (gae-entity->map (.next i)) (lazify-qiterable pq-iterable i))))))
 
+(defn make-query
+  "Takes a predicates vector, (nillable) options and an entity name"
+  [predicates options ent-kind]
+  (tap> {:make-query make-query :predicates predicates :options options :ent-kind ent-kind})
+  (if (seq predicates)
+    (build-query predicates options ent-kind (compose-query-filter predicates))
+    (->> (Query. (name ent-kind))
+         (set-ancestor-key options)
+         (set-keys-only options)
+         (add-sorts options))))
+
 (defn query-entity
+  "accepts a predicate such as: `[:int-value > 21000]`, 
+   your entity symbol such as `MyEntityName` and any options 
+   such as `[:keys-only true :order-by :int-value :desc]`"
   [predicates options ent-sym]
   (->> ent-sym
        (make-query predicates options)
@@ -255,6 +284,8 @@
        seq))
 
 (defmacro ds-operation-in-transaction
+  "properly handle the transaction, returning the result of 
+   executing `body`, handling rollbacks from any Throwable"
   [tx & body]
   `(try
      (let [body-result# (do ~@body)]
@@ -265,21 +296,34 @@
            (throw err#)))))
 
 (defmacro with-xg-transaction
+  "Wrapper for Datastore cross-group transaction declaration. 
+   You would choose this if you're operating on multiple entities
+   that have different root entities. Check the docs for limits"
   [& body]
   `(let [tx# (.beginTransaction (DatastoreServiceFactory/getDatastoreService) (TransactionOptions$Builder/withXG true))]
      (ds-operation-in-transaction tx# ~@body)))
 
 (defmacro with-transaction
+  "Wrapper for Datastore transaction declaration. `body` is a entity operation such as `(save! ...)` "
   [& body]
   `(let [tx# (.beginTransaction (DatastoreServiceFactory/getDatastoreService))]
      (ds-operation-in-transaction tx# ~@body)))
 
 ; End DS Query support ;;;
-(defmacro get-validation-meta
-  [sym]
-  `(:validation (meta '~sym)))
 
-(defmacro defentity
+(defmacro defentity ^{:doc "A valid `entity-name` is a noun in your system, like Automobile
+                            The `entity-fields` are the properties of that Automobile, like 
+                            the the number of tires or the maximum speed. The `validation` are 
+                            the functions that check whether you set the low level types 
+                            correctly on those properties such as the number of tires are 
+                            enforced to be an integer and the maximim speed is enforced to
+                            be a double.
+
+                            Note validation is optional! When you do not supply validation for
+                            your properties they're set to whatever you want. Great for 
+                            migrating your schema at will. Datastore is schemaless, afer all.
+                            "
+                      :clj-kondo/lint-as 'clj-kondo.lint-as/def-catch-all}
   [entity-name entity-fields & validation]
   (let [name entity-name
         sym (symbol name)

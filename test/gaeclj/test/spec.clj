@@ -3,9 +3,7 @@
   "Demonstrate the use of spec for validating properties on entities"
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
-            [clj-uuid :as uuid]
-            [clj-time.core :as t]
-            [gaeclj.ds :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
+            [gaeclj.ds :refer [defentity    save!]]
             [gaeclj.test.fixtures :as fixtures]))
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)
@@ -15,7 +13,7 @@
   (s/valid? ::uuid-string? might-be-uuid))
 
 (defentity SomeSpecValidatedEntity
-  [my-uuid] 
+  [my-uuid]
   [:my-uuid                 (requiring-resolve `gaeclj.test.spec/validate-uuid)])
 
 (deftest test-some-spec-validated-entity
