@@ -26,11 +26,13 @@
                  [com.google.http-client/google-http-client-appengine "1.43.3"
                   :exclusions [com.google.guava/guava-jdk5]]
                  [danlentz/clj-uuid "0.1.9"]]
-  :plugins [[io.github.borkdude/lein-lein2deps "0.1.0"]]
+  :plugins [[io.github.borkdude/lein-lein2deps "0.1.0"]
+            [lein-cloverage "1.2.2"]]
   :java-source-paths ["src-java"]
   :aot :all
   :profiles
   {:dev
-   {:dependencies [[com.google.appengine/appengine-testing ~appengine-version]
+   {:dependencies [[djblue/portal "0.55.1"]
+                   [com.google.appengine/appengine-testing ~appengine-version]
                    [com.google.appengine/appengine-api-stubs ~appengine-version]
                    [com.google.appengine/appengine-tools-sdk ~appengine-version]]}})
