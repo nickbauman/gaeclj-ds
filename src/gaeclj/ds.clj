@@ -325,12 +325,12 @@
                             "
                       :clj-kondo/lint-as 'clj-kondo.lint-as/def-catch-all}
   [entity-name entity-fields & validation]
-  (let [name entity-name
-        sym (symbol name)
-        empty-ent (symbol (str 'empty- name))
-        creator (symbol (str '-> name))]
+  (let [ent-name entity-name
+        sym (symbol ent-name)
+        empty-ent (symbol (str 'empty- ent-name))
+        creator (symbol (str '-> ent-name))]
     `(do
-       (defrecord ~name ~entity-fields
+       (defrecord ~ent-name ~entity-fields
          NdbEntity
          (save! [this#] (save-entity '~sym this#))
          (save! [this# parent-key#] (save-entity '~sym this# parent-key#))
@@ -340,7 +340,7 @@
        (def ~empty-ent
          ~(conj (map (constantly nil) entity-fields) creator))
 
-       (defn ~(symbol (str 'create- name)) ~entity-fields
+       (defn ~(symbol (str 'create- ent-name)) ~entity-fields
          (if-let [val-rules# (seq '~validation)] ; optional validation
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
@@ -350,18 +350,18 @@
                  props-to-results# (partition 2 (interleave keys# results#))
                  invalid-props# (map first (filter (fn [[_# result#]] (false? result#)) props-to-results#))]
              (if (seq invalid-props#)
-               (throw (RuntimeException. (str "(create-" (.getSimpleName ~name) " ...) failed validation for props " (join ", " invalid-props#)))))))
+               (throw (RuntimeException. (str "(create-" (.getSimpleName ~ent-name) " ...) failed validation for props " (join ", " invalid-props#)))))))
          ~(conj (seq entity-fields) creator))
 
-       (defn ~(symbol (str 'get- name)) [key#]
+       (defn ~(symbol (str 'get- ent-name)) [key#]
          (if-let [result# (get-entity '~sym key#)]
            (merge ~empty-ent result#)))
 
-       (defn ~(symbol (str 'query- name)) [predicates# & options#]
+       (defn ~(symbol (str 'query- ent-name)) [predicates# & options#]
          (if-let [results# (query-entity predicates# (first options#) '~sym)]
            (if (get-option (first options#) :keys-only)
              (map :key results#)
              (map #(merge ~empty-ent %) results#))))
 
-       (defn ~(symbol (str 'delete- name)) [key#]
+       (defn ~(symbol (str 'delete- ent-name)) [key#]
          (delete-entity '~sym key#)))))

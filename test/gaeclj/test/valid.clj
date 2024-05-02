@@ -48,3 +48,5 @@
                                                        "even distribution"
                                                        [(str (uuid/v1)) (str (uuid/v1))]
                                                        [1/2 1/2])))))
+
+(run-tests)
