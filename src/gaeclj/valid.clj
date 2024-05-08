@@ -1,9 +1,10 @@
 (ns gaeclj.valid
   "functions that can be used as ad-hoc validators for entities"
-  (:require [gaeclj.util :refer [try-with-default]]
-            [clojure.tools.logging :as log]))
+  (:require [gaeclj.util :refer [try-with-default]]))
 
-(def uuid-regex #"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")
+(def uuid-regex
+  "Validation of a stringified UUID"
+  #"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")
 
 (defn valid-uuid-str?
   [x]

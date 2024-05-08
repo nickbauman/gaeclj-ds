@@ -3,8 +3,7 @@
   (:import [com.google.appengine.tools.development.testing
             LocalServiceTestConfig
             LocalServiceTestHelper
-            LocalDatastoreServiceTestConfig])
-  (:require [clojure.java.io :as io]))
+            LocalDatastoreServiceTestConfig]))
 
 (defn- datastore-config []
   (doto
@@ -15,7 +14,8 @@
 (defn- create-local-test-helper []
   (LocalServiceTestHelper. (into-array LocalServiceTestConfig [(datastore-config)])))
 
-(defn setup-local-service-test-helper [f]
+(defn setup-local-service-test-helper
+  [f]
   (let [helper (create-local-test-helper)]
     (try
       (.setUp helper)

@@ -126,7 +126,6 @@
 (defn get-entity
   "Takes an entity kind and a datastore key and attempts to retrieve it, if possible"
   [entity-kind entity-key]
-  (tap> {:get-entity 2 :entity-kind entity-kind :entity-key entity-key})
   (let [datastore (DatastoreServiceFactory/getDatastoreService)
         result (try
                  (gae-entity->map (.get datastore (make-key entity-kind entity-key)))
@@ -212,7 +211,6 @@
   "Takes `pred-coll` consisting of vector of a property, an operator and
    a value for that property to build a filter"
   [pred-coll]
-  (tap> {:make-property-filter true :pred-coll pred-coll})
   (let [[property operator-fn query-value] pred-coll
         filter-operator (operator-map operator-fn)]
     (if filter-operator
@@ -263,7 +261,6 @@
 (defn make-query
   "Takes a predicates vector, (nillable) options and an entity name"
   [predicates options ent-kind]
-  (tap> {:make-query make-query :predicates predicates :options options :ent-kind ent-kind})
   (if (seq predicates)
     (build-query predicates options ent-kind (compose-query-filter predicates))
     (->> (Query. (name ent-kind))
@@ -309,23 +306,46 @@
   `(let [tx# (.beginTransaction (DatastoreServiceFactory/getDatastoreService))]
      (ds-operation-in-transaction tx# ~@body)))
 
+(defn all-keywords?
+  "whether we have just properties without any validation"
+  [entity-fields]
+  (every? #(isa? clojure.lang.Keyword (type %)) entity-fields))
+
+(defn ident-fields-to-validators
+  "Creates two vectors: one containing symbols made from field names, 
+   the other containing validator functions. If you do not supply the
+   validator functions, we put a `(constantly true)` for each field"
+  [entity-fields]
+  (if (all-keywords? entity-fields)
+    (let [fields (mapv #(symbol (name %)) entity-fields)]
+      [fields (vec (repeat (count fields) (constantly true)))])
+    (let [fields (->> (map first (partition 2 entity-fields))
+                      (mapv #(symbol (name %))))]
+      [fields (mapv second (partition 2 entity-fields))])))
+
 ; End DS Query support ;;;
 
-(defmacro defentity ^{:doc "A valid `entity-name` is a noun in your system, like Automobile
-                            The `entity-fields` are the properties of that Automobile, like 
-                            the the number of tires or the maximum speed. The `validation` are 
-                            the functions that check whether you set the low level types 
-                            correctly on those properties such as the number of tires are 
-                            enforced to be an integer and the maximim speed is enforced to
-                            be a double.
+(defmacro defentity
+  "A valid `entity-name` is a noun in your system, like Automobile
+   The `entity-fields` are the properties of that Automobile, like 
+   the the number of tires or the maximum speed, The `validation` are 
+   the functions that check whether you set the low level types 
+   correctly on those properties such as the number of tires are 
+   enforced to be an integer and the maximim speed is enforced to
+   be a double. Obviously you can use anything to determine whether
+   a property is correct, such as spec or even your own functions.
 
-                            Note validation is optional! When you do not supply validation for
-                            your properties they're set to whatever you want. Great for 
-                            migrating your schema at will. Datastore is schemaless, afer all.
-                            "
-                      :clj-kondo/lint-as 'clj-kondo.lint-as/def-catch-all}
-  [entity-name entity-fields & validation]
-  (let [ent-name entity-name
+   Note validation is optional. When you don't supply validation for
+   your properties they're set to whatever you want. Great for 
+   migrating your schema at will. Datastore is schemaless, after all."
+
+  [entity-name entity-fields]
+  (when-not (or (all-keywords? entity-fields)
+                (all-keywords? (mapv first (partition 2 entity-fields))))
+    (throw (RuntimeException. "fields must be keywords or keywords followed by functions")))
+
+  (let [[entity-fields validation] (ident-fields-to-validators entity-fields)
+        ent-name entity-name
         sym (symbol ent-name)
         empty-ent (symbol (str 'empty- ent-name))
         creator (symbol (str '-> ent-name))]

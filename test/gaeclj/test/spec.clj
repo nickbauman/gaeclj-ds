@@ -13,8 +13,7 @@
   (s/valid? ::uuid-string? might-be-uuid))
 
 (defentity SomeSpecValidatedEntity
-  [my-uuid]
-  [:my-uuid                 (requiring-resolve `gaeclj.test.spec/validate-uuid)])
+  [:my-uuid (requiring-resolve `gaeclj.test.spec/validate-uuid)])
 
 (deftest test-some-spec-validated-entity
   (testing "check for valid uuid"
@@ -29,6 +28,10 @@
 
 (deftest test-some-spec-validated-entity-invalid
   (testing "Save CostStratety invalid"
-
     (is (thrown? RuntimeException (create-SomeSpecValidatedEntity "invalid")))))
 
+(comment
+  (run-tests))
+
+(comment
+  (tap> {:foo :foo}))
