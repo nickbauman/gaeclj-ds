@@ -1,21 +1,14 @@
 (ns gaeclj.test.valid
   "Demonstrates validation using ad-hoc functions from an arbitrary namespace"
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is run-tests testing use-fixtures]]
             [clj-uuid :as uuid]
             [clj-time.core :as t]
-            [gaeclj.ds :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
+            [gaeclj.ds :refer [defentity save!]]
             [gaeclj.test.fixtures :as fixtures]))
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
 (defentity CostStrategy
-  [uuid
-   recurring?
-   create-date
-   cost-uuid
-   strategy-description
-   ordered-member-uuids
-   ordered-percentages]
   [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid-str?)
    :recurring?           (requiring-resolve `gaeclj.valid/bool?)
    :create-date          (requiring-resolve `gaeclj.valid/long?)

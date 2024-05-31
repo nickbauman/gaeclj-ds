@@ -8,11 +8,6 @@
 
 (add-tap #'portal/submit)
 
-;; (let [x :akeyword]
-;;   (if (isa? (type :foo)  (type x))
-;;     (prn "x is a keyword")
-;;     (prn "x is something else"))
-;;   )
 
 (comment
   
@@ -25,4 +20,9 @@
 
   
 (comment 
-  (vec (repeat 5 '(constantly true))))
+  
+  (let [x `(repeat 5 (constantly true))]
+    (eval x)
+    )
+
+

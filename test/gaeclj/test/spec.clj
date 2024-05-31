@@ -1,15 +1,21 @@
 
 (ns gaeclj.test.spec
   "Demonstrate the use of spec for validating properties on entities"
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest is run-tests testing use-fixtures]]
             [clojure.spec.alpha :as s]
             [gaeclj.ds :refer [defentity    save!]]
             [gaeclj.test.fixtures :as fixtures]))
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
+(declare SomeSpecValidatedEntity)
+(declare create-SomeSpecValidatedEntity)
+(declare query-SomeSpecValidatedEntity)
+
 (s/def ::uuid-string? #(parse-uuid %))
-(defn validate-uuid [might-be-uuid]
+(defn validate-uuid
+  "Validate stringified uuid"
+  [might-be-uuid]
   (s/valid? ::uuid-string? might-be-uuid))
 
 (defentity SomeSpecValidatedEntity

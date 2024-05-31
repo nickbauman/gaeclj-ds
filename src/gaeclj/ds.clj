@@ -315,10 +315,10 @@
   "Creates two vectors: one containing symbols made from field names, 
    the other containing validator functions. If you do not supply the
    validator functions, we put a `(constantly true)` for each field"
-  [entity-fields]
+  [entity-fields] 
   (if (all-keywords? entity-fields)
-    (let [fields (mapv #(symbol (name %)) entity-fields)]
-      [fields (vec (repeat (count fields) (constantly true)))])
+    (let [fields (into [] (mapcat (fn [ent] [(symbol (name ent)) (constantly true)]) entity-fields))] 
+      fields)
     (let [fields (->> (map first (partition 2 entity-fields))
                       (mapv #(symbol (name %))))]
       [fields (mapv second (partition 2 entity-fields))])))
@@ -326,7 +326,7 @@
 ; End DS Query support ;;;
 
 (defmacro defentity
-  "A valid `entity-name` is a noun in your system, like Automobile
+  "A valid `entity-name` is a noun in the system, like Automobile
    The `entity-fields` are the properties of that Automobile, like 
    the the number of tires or the maximum speed, The `validation` are 
    the functions that check whether you set the low level types 
@@ -344,11 +344,15 @@
                 (all-keywords? (mapv first (partition 2 entity-fields))))
     (throw (RuntimeException. "fields must be keywords or keywords followed by functions")))
 
-  (let [[entity-fields validation] (ident-fields-to-validators entity-fields)
+  (let [x (ident-fields-to-validators entity-fields)
+        [entity-fields validators] [(into [] (filter #(not (fn? %)) x)) (filter fn? x)]
+        _ (prn entity-fields)
+        _ (prn validators)
         ent-name entity-name
         sym (symbol ent-name)
         empty-ent (symbol (str 'empty- ent-name))
         creator (symbol (str '-> ent-name))]
+    (prn "here 1")
     `(do
        (defrecord ~ent-name ~entity-fields
          NdbEntity
@@ -357,11 +361,16 @@
          (delete! [this#] (delete-entity '~sym (:key this#)))
          (gae-key [this#] (as-gae-key '~sym (:key this#))))
 
+        (prn "here 2")
+       
        (def ~empty-ent
          ~(conj (map (constantly nil) entity-fields) creator))
 
-       (defn ~(symbol (str 'create- ent-name)) ~entity-fields
-         (if-let [val-rules# (seq '~validation)] ; optional validation
+       (prn "here 3") 
+
+       (defn ~(symbol (str 'create- ent-name)) ~entity-fields 
+         (prn "hey 33")
+         (if-let [val-rules# (seq '~validators)]
            (let [validation-fns# (map second (partition 2 (first val-rules#)))
                  values# ~entity-fields
                  validators-to-values# (partition 2 (interleave validation-fns# values#))
@@ -372,6 +381,8 @@
              (if (seq invalid-props#)
                (throw (RuntimeException. (str "(create-" (.getSimpleName ~ent-name) " ...) failed validation for props " (join ", " invalid-props#)))))))
          ~(conj (seq entity-fields) creator))
+        
+        (prn "here 4")
 
        (defn ~(symbol (str 'get- ent-name)) [key#]
          (if-let [result# (get-entity '~sym key#)]
@@ -385,3 +396,14 @@
 
        (defn ~(symbol (str 'delete- ent-name)) [key#]
          (delete-entity '~sym key#)))))
+
+(comment 
+  (do
+    (defentity SomeEntity [:uuid :other])
+    (create-SomeEntity "8e5625f8-60ec-11ea-a1ec-a45e60d5bfab"))
+
+
+
+
+  )
+

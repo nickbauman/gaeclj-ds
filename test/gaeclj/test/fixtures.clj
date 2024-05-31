@@ -15,6 +15,7 @@
   (LocalServiceTestHelper. (into-array LocalServiceTestConfig [(datastore-config)])))
 
 (defn setup-local-service-test-helper
+  "Creates app engine test environment"
   [f]
   (let [helper (create-local-test-helper)]
     (try

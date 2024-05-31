@@ -1,6 +1,6 @@
 (ns gaeclj.test.ds
   "Demonstrate all the Datastore features we support"
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [is testing use-fixtures deftest are run-tests]]
             [gaeclj.test.fixtures :as fixtures]
             [clj-uuid :as uuid]
             [gaeclj.ds :as db :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
@@ -8,13 +8,13 @@
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
-(defentity BasicEntity [content saved-time])
+(defentity BasicEntity [:content :saved-time])
 
-(defentity AnotherEntity [content saved-time int-value])
+(defentity AnotherEntity [:content :saved-time :int-value])
 
-(defentity CustomKeyEntity [key content saved-time])
+(defentity CustomKeyEntity [:key :content :saved-time])
 
-(defentity MyEntityWithRepeatedProp [repeated-uuid-array saved-time])
+(defentity MyEntityWithRepeatedProp [:repeated-uuid-array :saved-time])
 
 (deftest test-basic-entities
 
@@ -150,4 +150,5 @@
       (save! (create-AnotherEntity "Even More New Content" (t/date-time 2016 12 10) 51003)))
     (is (= 3 (count (query-AnotherEntity [:int-value > 51000]))))))
 
-(run-tests)
+(comment 
+  run-tests)
