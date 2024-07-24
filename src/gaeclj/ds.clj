@@ -311,19 +311,15 @@
 
 ; End DS Query support ;;;
 
-(defmacro defentity ^{:doc "A valid `entity-name` is a noun in your system, like Automobile
-                            The `entity-fields` are the properties of that Automobile, like 
-                            the the number of tires or the maximum speed. The `validation` are 
-                            the functions that check whether you set the low level types 
-                            correctly on those properties such as the number of tires are 
-                            enforced to be an integer and the maximim speed is enforced to
-                            be a double.
-
-                            Note validation is optional! When you do not supply validation for
-                            your properties they're set to whatever you want. Great for 
-                            migrating your schema at will. Datastore is schemaless, afer all.
-                            "
-                      :clj-kondo/lint-as 'clj-kondo.lint-as/def-catch-all}
+(defmacro defentity 
+  "A valid `entity-name` is a noun in your system, like Automobile
+  The `entity-fields` are the properties of that Automobile, like 
+  the the number of tires or the maximum speed. The `validation` are 
+  the functions that check whether the properties are valid.
+  
+  Note validation is optional! When you do not supply validation for
+  your properties they're set to whatever you want. Great for 
+  migrating your schema at will. Datastore is schemaless, after all." 
   [entity-name entity-fields & validation]
   (let [name entity-name
         sym (symbol name)
