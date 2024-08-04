@@ -321,6 +321,7 @@
   your properties they're set to whatever you want. Great for 
   migrating your schema at will. Datastore is schemaless, after all." 
   [entity-name entity-fields & validation]
+  (tap> {:defentity entity-name :entity-name entity-name :entity-fields entity-fields :validation validation})
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))

@@ -1,6 +1,7 @@
 
 (ns gaeclj.test.spec
   "Demonstrate the use of spec for validating properties on entities"
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
   (:require [clojure.test :refer :all]
             [clojure.spec.alpha :as s]
             [gaeclj.ds :refer [defentity    save!]]
@@ -31,4 +32,3 @@
   (testing "Save CostStratety invalid"
 
     (is (thrown? RuntimeException (create-SomeSpecValidatedEntity "invalid")))))
-

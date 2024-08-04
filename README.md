@@ -116,6 +116,16 @@ Optionally, you can declare rules that are applied to each property before the e
             :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
 ```
 
+```clojure
+(defentity CostStrategy
+           [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+            :create-date          (requiring-resolve `gaeclj.valid/long?)
+            :cost-uuid            (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+            :strategy-description (requiring-resolve `gaeclj.valid/string-or-nil?)
+            :ordered-member-uuids (requiring-resolve `gaeclj.valid/repeated-uuid?)
+            :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
+```
+
 When creating a new `CostStrategy` the rules are applied.
 
 ```clojure

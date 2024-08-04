@@ -1,5 +1,6 @@
 (ns gaeclj.test.ds
   "Demonstrate all the Datastore features we support"
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
   (:require [clojure.test :refer :all]
             [gaeclj.test.fixtures :as fixtures]
             [clj-uuid :as uuid]
