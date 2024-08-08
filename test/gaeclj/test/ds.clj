@@ -1,7 +1,7 @@
 (ns gaeclj.test.ds
   "Demonstrate all the Datastore features we support"
   {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest testing is are use-fixtures]]
             [gaeclj.test.fixtures :as fixtures]
             [clj-uuid :as uuid]
             [gaeclj.ds :as db :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]

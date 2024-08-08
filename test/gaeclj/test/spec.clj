@@ -2,7 +2,7 @@
 (ns gaeclj.test.spec
   "Demonstrate the use of spec for validating properties on entities"
   {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test :refer [deftest testing is use-fixtures]]
             [clojure.spec.alpha :as s]
             [gaeclj.ds :refer [defentity    save!]]
             [gaeclj.test.fixtures :as fixtures]))
@@ -10,7 +10,9 @@
 (use-fixtures :once fixtures/setup-local-service-test-helper)
 
 (s/def ::uuid-string? #(parse-uuid %))
-(defn validate-uuid [might-be-uuid]
+(defn validate-uuid
+  "Returns true if x is a valid UUID string"
+  [might-be-uuid]
   (s/valid? ::uuid-string? might-be-uuid))
 
 (defentity SomeSpecValidatedEntity
