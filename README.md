@@ -25,7 +25,6 @@ Leiningen Clojars dependency:
 [gaeclj-ds "0.1.3.3"]
 ```
 
-
 ## Example usages
 
 ```clojure
@@ -37,9 +36,9 @@ Leiningen Clojars dependency:
       entity2 (save! (create-AnotherEntity "Other content" (t/date-time 1984 10 12) 91))
       entity3 (save! (create-AnotherEntity "More interesting content" (t/date-time 1984 10 12) 17))
                                         ; repeated properties
-      root-entity (save! (create-BasicEntity "basic entity content" (t/date-time 2015 6 8) [1 2 3])) 
+      root-entity (save! (create-BasicEntity "basic entity content" (t/date-time 2015 6 8) [1 2 3]))
       child-entity1 (save! (create-AnotherEntity "child one content" (t/date-time 2016 12 10) 33) (gae-key root-entity))
-      child-entity2 (save! (create-AnotherEntity "child two content" (t/date-time 2016 12 10) 44) (gae-key root-entity))]   
+      child-entity2 (save! (create-AnotherEntity "child two content" (t/date-time 2016 12 10) 44) (gae-key root-entity))]
                                         ; query all
   (query-AnotherEntity [])
                                         ; equality
@@ -61,13 +60,13 @@ Leiningen Clojars dependency:
   (query-AnotherEntity [:or [:content = "Some content woo"] [:int-value < 5]])
   (query-AnotherEntity [:or [:content = "Some content woo"] [:int-value > 5]])
                                         ; compound queries with nested compound predicates
-  (query-AnotherEntity [:or [:content = "Other content"] 
+  (query-AnotherEntity [:or [:content = "Other content"]
                         [:and [:saved-time < (.toDate (t/date-time 1983 3 5))] [:int-value = 6]]])
                                         ; keys-only support
   (query-AnotherEntity [:int-value < 7] [:keys-only true])
                                         ; order-by support
   (query-AnotherEntity [:int-value > 0] [:order-by :int-value :desc])
-                                        ; keys only and order-by support together 
+                                        ; keys only and order-by support together
   (query-AnotherEntity [:int-value > 0] [:keys-only true :order-by :int-value :desc])
                                         ; support multiple sort orders (with keys-only, too)
   (query-AnotherEntity [:saved-time > 0] [:order-by :saved-time :desc :int-value :asc :keys-only true])
@@ -116,6 +115,16 @@ Optionally, you can declare rules that are applied to each property before the e
             :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
 ```
 
+```clojure
+(defentity CostStrategy
+           [:uuid                 (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+            :create-date          (requiring-resolve `gaeclj.valid/long?)
+            :cost-uuid            (requiring-resolve `gaeclj.valid/valid-uuid-str?)
+            :strategy-description (requiring-resolve `gaeclj.valid/string-or-nil?)
+            :ordered-member-uuids (requiring-resolve `gaeclj.valid/repeated-uuid?)
+            :ordered-amounts      (requiring-resolve `gaeclj.valid/repeated-longs?)])
+```
+
 When creating a new `CostStrategy` the rules are applied.
 
 ```clojure
@@ -139,6 +148,7 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
     clojure.test$test_var.invokeStatic (test.clj:717)
     clojure.test$test_var.invoke (test.clj:708)
 ```
+
 ## Runing the automated tests
 
 Through leiningen

@@ -1,6 +1,7 @@
 (ns gaeclj.test.ds
   "Demonstrate all the Datastore features we support"
-  (:require [clojure.test :refer :all]
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
+  (:require [clojure.test :refer [deftest testing is are use-fixtures]]
             [gaeclj.test.fixtures :as fixtures]
             [clj-uuid :as uuid]
             [gaeclj.ds :as db :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
@@ -141,6 +142,7 @@
            (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
            (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
            (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
+    (println "NOTE: an exception was thrown as expected")
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
 
     (is (= 0 (count (query-AnotherEntity [:int-value > 51000]))))

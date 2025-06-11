@@ -1,9 +1,10 @@
 (ns gaeclj.test.valid
   "Demonstrates validation using ad-hoc functions from an arbitrary namespace"
-  (:require [clojure.test :refer :all]
+  {:clj-kondo/config '{:linters {:unresolved-symbol {:level :off}}}}
+  (:require [clojure.test :refer [deftest testing is use-fixtures]]
             [clj-uuid :as uuid]
             [clj-time.core :as t]
-            [gaeclj.ds :refer [defentity with-transaction with-xg-transaction gae-key save! delete! !=]]
+            [gaeclj.ds :refer [defentity save!]]
             [gaeclj.test.fixtures :as fixtures]))
 
 (use-fixtures :once fixtures/setup-local-service-test-helper)

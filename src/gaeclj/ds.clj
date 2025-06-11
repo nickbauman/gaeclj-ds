@@ -6,15 +6,12 @@
             [gaeclj.util :as u])
   (:import [com.google.appengine.api.datastore
             DatastoreServiceFactory
-            DatastoreService
             Entity
             EntityNotFoundException
-            FetchOptions$Builder
             KeyFactory
             Key
             Query
             Query$SortDirection
-            Query$CompositeFilter
             Query$CompositeFilterOperator
             Query$FilterPredicate
             Query$FilterOperator
@@ -311,7 +308,7 @@
 
 ; End DS Query support ;;;
 
-(defmacro defentity 
+(defmacro defentity
   "A valid `entity-name` is a noun in your system, like Automobile
   The `entity-fields` are the properties of that Automobile, like 
   the the number of tires or the maximum speed. The `validation` are 
@@ -319,8 +316,9 @@
   
   Note validation is optional! When you do not supply validation for
   your properties they're set to whatever you want. Great for 
-  migrating your schema at will. Datastore is schemaless, after all." 
+  migrating your schema at will. Datastore is schemaless, after all."
   [entity-name entity-fields & validation]
+  (tap> {:defentity entity-name :entity-name entity-name :entity-fields entity-fields :validation validation})
   (let [name entity-name
         sym (symbol name)
         empty-ent (symbol (str 'empty- name))
