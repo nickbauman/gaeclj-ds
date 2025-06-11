@@ -6,15 +6,12 @@
             [gaeclj.util :as u])
   (:import [com.google.appengine.api.datastore
             DatastoreServiceFactory
-            DatastoreService
             Entity
             EntityNotFoundException
-            FetchOptions$Builder
             KeyFactory
             Key
             Query
             Query$SortDirection
-            Query$CompositeFilter
             Query$CompositeFilterOperator
             Query$FilterPredicate
             Query$FilterOperator

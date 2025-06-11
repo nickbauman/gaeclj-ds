@@ -142,6 +142,7 @@
            (save! (create-AnotherEntity "Some Content" (t/date-time 2016 12 10) 21001))
            (save! (create-AnotherEntity "More Content" (t/date-time 2016 12 10) 21002))
            (save! (create-AnotherEntity "Even more content" (t/date-time 2016 12 10) 21003)))))
+    (println "NOTE: an exception was thrown as expected")
     (is (= 0 (count (query-AnotherEntity [:int-value > 21000]))))
 
     (is (= 0 (count (query-AnotherEntity [:int-value > 51000]))))
