@@ -7,6 +7,7 @@
   uuid-regex #"[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}")
 
 (defn valid-uuid-str?
+  "a valid UUID string"
   [x]
   (try-with-default false
                     (not (nil? (re-matches uuid-regex x)))))

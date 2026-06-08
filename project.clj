@@ -14,21 +14,21 @@
   :aliases {"test-java11" ["with-profile" "+java11" "test"]
             "test-java17" ["with-profile" "+java17" "test"]
             "test-java21" ["with-profile" "+java21" "test"]}
-  :dependencies [[org.clojure/clojure "1.11.1"]
-                 [org.clojure/tools.logging "1.2.4"]
-                 [org.clojure/data.json "2.4.0"]
+  :dependencies [[org.clojure/clojure "1.12.5"]
+                 [org.clojure/tools.logging "1.3.1"]
+                 [org.clojure/data.json "2.5.2"]
                  [clj-time "0.15.2"]
-                 [ch.qos.logback/logback-classic "1.4.11"]
+                 [ch.qos.logback/logback-classic "1.5.34"]
                  [com.google.guava/guava "32.1.3-jre"]
                  [com.google.appengine/appengine-api-1.0-sdk ~appengine-version]
                  [org.apache.httpcomponents/httpclient "4.5.14"]
-                 [com.google.api-client/google-api-client-appengine "2.2.0"
+                 [com.google.api-client/google-api-client-appengine "2.9.0"
                   :exclusions [com.google.guava/guava-jdk5]]
-                 [com.google.oauth-client/google-oauth-client-appengine "1.34.1"
+                 [com.google.oauth-client/google-oauth-client-appengine "1.39.0"
                   :exclusions [com.google.guava/guava-jdk5]]
-                 [com.google.http-client/google-http-client-appengine "1.43.3"
+                 [com.google.http-client/google-http-client-appengine "2.1.0"
                   :exclusions [com.google.guava/guava-jdk5]]
-                 [danlentz/clj-uuid "0.1.9"]]
+                 [danlentz/clj-uuid "0.2.5"]]
   :plugins [[io.github.borkdude/lein-lein2deps "0.1.0"]
             [lein-cloverage "1.2.2"]]
   :java-source-paths ["src-java"]
@@ -41,7 +41,7 @@
    :java21
    {:javac-options ^:replace ["--release" "21" "-Xlint:-options"]}
    :dev
-   {:dependencies [[djblue/portal "0.55.1"]
+   {:dependencies [[djblue/portal "0.65.0"]
                    [com.google.appengine/appengine-testing ~appengine-version]
                    [com.google.appengine/appengine-api-stubs ~appengine-version]
                    [com.google.appengine/appengine-tools-sdk ~appengine-version]]}})
