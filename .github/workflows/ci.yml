@@ -19,9 +19,10 @@ jobs:
           distribution: temurin
           java-version: ${{ matrix.java }}
       - name: Install Leiningen
-        uses: DeLaGuardo/setup-clojure@12
-        with:
-          lein: latest
+        run: |
+          wget -q https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein -O /usr/local/bin/lein
+          chmod +x /usr/local/bin/lein
+          lein version
       - name: Cache deps
         uses: actions/cache@v4
         with:
