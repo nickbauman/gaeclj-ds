@@ -28,6 +28,7 @@ Modernize gaeclj-ds from a legacy App Engine runtime/dependency stack to the lat
 4. Capture dependency and runtime inventory from `project.clj`.
 
 Exit criteria:
+
 - Branch created.
 - CI runs tests automatically.
 - Baseline behavior documented.
@@ -47,6 +48,7 @@ Exit criteria:
 4. Produce a migration mapping table (current library -> replacement library).
 
 Exit criteria:
+
 - Approved dependency mapping table.
 - Target Java/runtime version finalized.
 
@@ -59,6 +61,7 @@ Exit criteria:
 5. Keep feature flags or adapter shims while transitioning internals.
 
 Exit criteria:
+
 - Project builds with modern runtime targets.
 - Tests still pass with transitional adapter layer.
 
@@ -79,6 +82,7 @@ Exit criteria:
 4. Verify each migrated operation using existing tests plus focused new tests.
 
 Exit criteria:
+
 - No direct dependency on legacy App Engine datastore API in core path.
 - Existing DSL API preserved.
 
@@ -93,6 +97,7 @@ Exit criteria:
 3. Add smoke tests for representative user flows from README examples.
 
 Exit criteria:
+
 - Coverage stable or improved.
 - Critical datastore behaviors explicitly tested.
 
@@ -104,6 +109,7 @@ Exit criteria:
 4. Publish release candidate and run downstream validation.
 
 Exit criteria:
+
 - README and changelog updated.
 - Release candidate validated.
 
@@ -115,6 +121,7 @@ Exit criteria:
 4. Add template validation checks (generated project compiles/tests).
 
 Exit criteria:
+
 - Template generates a runnable project.
 - Generated project tests pass out of the box.
 
@@ -126,6 +133,7 @@ Exit criteria:
 4. Increased complexity from dual-stack transition period.
 
 Mitigation:
+
 - Keep adapter boundary small and well-tested.
 - Migrate one operation class at a time.
 - Use characterization tests to catch semantic drift.
