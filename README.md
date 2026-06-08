@@ -1,6 +1,6 @@
 # gaeclj-ds
 
-A Clojure query DSL for Google App Engine for Java 11 & 17. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
+A Clojure query DSL for Google App Engine for Java 11, 17, and 21. Inspired by the Python NDB library (with an emphasis on Clojure's more functional idiom.) Queries return a lazy sequence.
 
 [![Clojars Project](https://img.shields.io/clojars/v/gaeclj-ds.svg)](https://clojars.org/gaeclj-ds)
 
@@ -139,12 +139,23 @@ java.lang.RuntimeException: (create-CostStrategy ...) failed validation for prop
     clojure.test$test_var.invokeStatic (test.clj:717)
     clojure.test$test_var.invoke (test.clj:708)
 ```
+
 ## Runing the automated tests
 
 Through leiningen
 
 ```shell
 lein test
+```
+
+## Java Compilation Targets
+
+The default compilation target is Java 11. You can also test using Java 17 and Java 21 compilation targets:
+
+```shell
+lein test-java11
+lein test-java17
+lein test-java21
 ```
 
 ## License

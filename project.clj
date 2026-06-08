@@ -10,7 +10,10 @@
             :comments "same as Clojure"}
   :min-lein-version "2.6.0"
   :url "https://github.com/nickbauman/gaeclj-ds"
-  :javac-options ["-target" "1.11" "-source" "1.11" "-Xlint:-options"]
+  :javac-options ["--release" "11" "-Xlint:-options"]
+  :aliases {"test-java11" ["with-profile" "+java11" "test"]
+            "test-java17" ["with-profile" "+java17" "test"]
+            "test-java21" ["with-profile" "+java21" "test"]}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.logging "1.2.4"]
                  [org.clojure/data.json "2.4.0"]
@@ -31,7 +34,13 @@
   :java-source-paths ["src-java"]
   :aot :all
   :profiles
-  {:dev
+  {:java11
+   {:javac-options ^:replace ["--release" "11" "-Xlint:-options"]}
+   :java17
+   {:javac-options ^:replace ["--release" "17" "-Xlint:-options"]}
+   :java21
+   {:javac-options ^:replace ["--release" "21" "-Xlint:-options"]}
+   :dev
    {:dependencies [[djblue/portal "0.55.1"]
                    [com.google.appengine/appengine-testing ~appengine-version]
                    [com.google.appengine/appengine-api-stubs ~appengine-version]
